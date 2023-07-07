@@ -11,15 +11,15 @@ sudo apt install ffmpeg
 ```
 conda create -n glaidos python=3.8
 conda activate glaidos
-
-pip install poetry
-poetry install
 ```
+
+pip install -r requirements.txt
 
 pip install openai
 pip install python-dotenv
 
 https://github.com/Uberi/speech_recognition#on-ubuntudebian-i-get-annoying-output-in-the-terminal-saying-things-like-bt_audio_service_open--connection-refused-and-various-others
+
 
 see: https://stackoverflow.com/questions/69711732/pyaudio-install-error-failed-building-wheel
 
