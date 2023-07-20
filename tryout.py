@@ -13,6 +13,7 @@ from scipy.io.wavfile import write
 import time
 import re
 from collections import defaultdict
+from string import *
 
 # Create a lock for thread synchronization
 lock = threading.Lock()
@@ -116,7 +117,7 @@ def run_glaidos():
             model="gpt-3.5-turbo", messages=messages
         )
         response = completion.choices[0].message.content
-
+        response = response.replace("GLaDOS", "glados")
         # Split the message into sentences using regular expressions
         sentences = re.split(r'(?<=[.?!])\s+|\n', response)
 
