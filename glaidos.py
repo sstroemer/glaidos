@@ -68,6 +68,8 @@ def run_glaidos():
     max_retries = 5 # Set this to "0" in order to test the "max_retries reached" message when simulating a server overload. Default is "5".
     simulate_server_overload = False  # Set this to "True" to simulate server overload. "False" for normal operation.
     
+    openai.api_key_path = ".env"
+    
     # Remove the generated audio files
     remove_audio_files()
     print("<< launching glAIdos and testing noise levels >>")
@@ -101,9 +103,9 @@ def run_glaidos():
 
         # Transcribe the audio using whisper. SpeechRecognition supports a lot of different ways (Google, Whisper API, ...).
         text = recognizer.recognize_whisper(
-            audio_data=audio, model="medium.en", language="en").strip()
+            audio_data=audio, model="tiny.en", language="en").strip()
         
-        if text == "you" or text == "" or text == "Thank you." or text == "Okay." or text == "Thank you. Thank you.":
+        if text == "you" or text == "" or text == "." or text == "Thank you." or text == "Okay." or text == "Thank you. Thank you.":
             continue
         
         print(f"user: {text}")
