@@ -99,7 +99,7 @@ def run_glaidos():
             audio_data=audio, model="base", language="en"
         ).strip()
         
-        if text == "you" or text == "":
+        if text == "you" or text == "" or text == "Thank you":
             continue
         
         print(f"user: {text}")
