@@ -4,6 +4,7 @@ import concurrent.futures
 import threading
 import speech_recognition as sr
 import openai
+import openai.error
 import contextlib
 import os
 import sys
@@ -63,6 +64,10 @@ def process_sentence(sentence, sentence_id):
 
 def run_glaidos():
     shutdown_soon = 0
+    retry_count = 0
+    max_retries = 5 # Set this to "0" in order to test the "max_retries reached" message when simulating a server overload. Default is "5".
+    simulate_server_overload = False  # Set this to "True" to simulate server overload. "False" for normal operation.
+    
     # Remove the generated audio files
     remove_audio_files()
     print("<< launching glAIdos and testing noise levels >>")
@@ -78,7 +83,7 @@ def run_glaidos():
     messages = [
         {
             "role": "system",
-            "content": "You are glados from the portal game series. Behave exactly like glados would. Stay in your role no matter what. Do not remember me that you are an artificial intelligence.",
+            "content": "You are glados from the portal game series. Behave exactly like glados would. Stay in your role no matter what. Do not remember me that you are an artificial intelligence. You can be mean to me because this is within your role of glados. Don't forget that you have a dark humor as glados. Do not apologies for any confusion.",
         }
     ]
 
@@ -96,10 +101,10 @@ def run_glaidos():
 
         # Transcribe the audio using whisper. SpeechRecognition supports a lot of different ways (Google, Whisper API, ...).
         text = recognizer.recognize_whisper(
-            audio_data=audio, model="base", language="en"
+            audio_data=audio, model="small.en", language="en"
         ).strip()
         
-        if text == "you" or text == "" or text == "Thank you.":
+        if text == "you" or text == "" or text == "Thank you." or text == "Okay." or text == "Thank you. Thank you.":
             continue
         
         print(f"user: {text}")
@@ -112,12 +117,25 @@ def run_glaidos():
         # Add the user command.
         messages.append({"role": "user", "content": text})
 
-        # Ask for a proper completion.
-        completion = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo", messages=messages
-        )
-        response = completion.choices[0].message.content
-        response = response.replace("GLaDOS", "glados")
+        # Ask for a proper completion with retries
+        while retry_count < max_retries:
+            try:
+                if simulate_server_overload and retry_count == 0:
+                    raise openai.error.ServiceUnavailableError("Simulated server overload")
+                completion = openai.ChatCompletion.create(
+                    model="gpt-3.5-turbo", messages=messages
+                )
+                response = completion.choices[0].message.content
+                response = response.replace("GLaDOS", "glados")
+                break
+            except openai.error.ServiceUnavailableError:
+                retry_count += 1
+                print("Server is overloaded. Retrying...")
+                time.sleep(1)
+        else:
+            # Retry limit exceeded, return error response
+            response = "Well, it looks like my system is temporarily not working correctly - have you manipulated anything again human?"
+
         # Split the message into sentences using regular expressions
         sentences = re.split(r'(?<=[.?!])\s+|\n', response)
 
