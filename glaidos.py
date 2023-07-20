@@ -41,7 +41,7 @@ def generate_and_save_audio(sentence, output_file):
         tts_output = glados.generate_jit(x)
 
         # Use HiFiGAN as vocoder to make output sound like GLaDOS
-        mel = tts_output['mel_post'].to(device)
+        mel = tts_output['mel_post'].to(device_vocoder)
         audio = vocoder(mel)
 
         # Normalize audio to fit in WAV file
@@ -101,8 +101,7 @@ def run_glaidos():
 
         # Transcribe the audio using whisper. SpeechRecognition supports a lot of different ways (Google, Whisper API, ...).
         text = recognizer.recognize_whisper(
-            audio_data=audio, model="small.en", language="en"
-        ).strip()
+            audio_data=audio, model="medium.en", language="en").strip()
         
         if text == "you" or text == "" or text == "Thank you." or text == "Okay." or text == "Thank you. Thank you.":
             continue
@@ -206,16 +205,16 @@ if __name__ == "__main__":
                 os.dup2(orig_stdout_fno, 1)
                 os.dup2(orig_stderr_fno, 2)
 
-    # Select the device
+    # Select the device_vocoder
     if torch.is_vulkan_available():
-        device = 'vulkan'
+        device_vocoder = 'vulkan'
     elif torch.cuda.is_available():
-        device = 'cuda'
+        device_vocoder = 'cuda'
     else:
-        device = 'cpu'
+        device_vocoder = 'cpu'
 
     # Load models
     glados = torch.jit.load('models/glados.pt')
-    vocoder = torch.jit.load('models/vocoder-gpu.pt', map_location=device)
+    vocoder = torch.jit.load('models/vocoder-gpu.pt', map_location=device_vocoder)
 
     run_glaidos()
