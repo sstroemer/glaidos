@@ -77,20 +77,6 @@ def run_glaidos():
     max_retries = 5 # Set this to "0" in order to test the "max_retries reached" message when simulating a server overload. Default is "5".
     simulate_server_overload = False  # Set this to "True" to simulate server overload. "False" for normal operation.
     
-    # Load environment variables
-    load_environment()
-    
-    # Remove the generated audio files
-    remove_audio_files()
-    print("<< launching glAIdos and testing noise levels >>")
-    with suppress_stdout():
-        recognizer = sr.Recognizer()
-        microphone = sr.Microphone()
-
-        # Detect noise levels.
-        with microphone as source:
-            recognizer.adjust_for_ambient_noise(source, duration=5)
-
     # Prepare messages, first: "priming" the system role.
     messages = [
         {
@@ -98,28 +84,55 @@ def run_glaidos():
             "content": "You are glados from the portal game series. Behave exactly like glados would. Stay in your role no matter what. Do not remember me that you are an artificial intelligence. You can be mean to me because this is within your role of glados. Don't forget that you have a dark humor as glados. Do not apologies for any confusion.",
         }
     ]
+    
+    # Load environment variables
+    load_environment()
+    
+    # Remove the generated audio files
+    remove_audio_files()
+    
+    print("<< launching glAIdos and testing noise levels >>")
+    with suppress_stdout():
+        recognizer = sr.Recognizer()
+        microphone = sr.Microphone()
 
+        # Detect noise levels.
+        #with microphone as source:
+            #recognizer.adjust_for_ambient_noise(source, duration=5)
+            
+        recognizer.energy_threshold = 4700 #increase this number if transscription is cut off. Decrease if the end of a message is not correctly detected. Try steps in size of 100. Default (which worked) is 4700
+        recognizer.dynamic_energy_threshold = True
+            
     while True:
-        # Remove the generated audio files
-        remove_audio_files()
-        if(shutdown_soon == 1):
-            break
+        
+        # Detect noise levels.
+        #with microphone as source:
+            #recognizer.adjust_for_ambient_noise(source, duration=2)
+            
+        #recognizer.energy_threshold = 4700 #increase this number if transscription is cut off. Decrease if the end of a message is not correctly detected. Try steps in size of 100. Default (which worked) is 4700
+        #recognizer.dynamic_energy_threshold = True
+        
         print("<< glAIdos is waiting for input >>")
 
         # Get input from the microphone (this can be done with callbacks, etc.).
         with suppress_stdout():
             with microphone as source:
-                audio = recognizer.listen(source)
+                audio = recognizer.listen(source, phrase_time_limit=13)
 
         # Transcribe the audio using whisper. SpeechRecognition supports a lot of different ways (Google, Whisper API, ...).
-        text = recognizer.recognize_whisper(
-            audio_data=audio, model="small.en", language="en").strip()
+        try:
+            #text = recognizer.recognize_google(audio, language = "en-US").strip() #leaving this here if we want to switch to googles solution
+            text = recognizer.recognize_whisper(audio_data=audio, model="medium.en", language="en").strip()
+        except Exception as e:
+            print("Ignoring garbage data.")
+            text = ""
         
-        if text == "you" or text == "" or text == "." or text == "Thank you." or text == "Okay." or text == "Thank you. Thank you." or text == "Thanks.":
+        if text == "you" or text == "" or text == "." or text == "Thank you." or text == "Okay." or text == "Thank you. Thank you." or text == "Thanks." or text == "We need to get out of here.":
+            #print(f"WARNING!: Previous Input was ignored - just displayed for debugging. GOT: {text}") # enable this line if further debugging info is required
             continue
         
         print(f"user: {text}")
-
+        
         # Check for "Shut down!" command.
         if ("shut" in text.lower()) and ("down" in text.lower()):
             print("Shutting down now after next reply.")
@@ -193,6 +206,11 @@ def run_glaidos():
 
         # Make sure to append the answer from the assistant's role to keep up the conversation
         messages.append({"role": "assistant", "content": response})
+        
+        # Remove the generated audio files
+        remove_audio_files()
+        if(shutdown_soon == 1):
+            break
 
 def remove_audio_files():
     files = [f'{i:03d}.wav' for i in range(len(os.listdir()))]
