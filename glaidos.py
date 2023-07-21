@@ -15,9 +15,18 @@ import time
 import re
 from collections import defaultdict
 from string import *
+import platform
 
 # Create a lock for thread synchronization
 lock = threading.Lock()
+
+def load_environment():
+    try:
+        with open(".env", 'r') as file:
+            line = file.readline().strip()
+            openai.api_key = line
+    except FileNotFoundError:
+        print("Warning: '.env' file not found. If you added a path variable in your system - I will use this instead. If not.. it will fail.")
 
 def play_wav_files(files):
     files = sorted(files, key=lambda x: int(x[:-4]))  # Sort files based on sentence IDs
@@ -68,7 +77,8 @@ def run_glaidos():
     max_retries = 5 # Set this to "0" in order to test the "max_retries reached" message when simulating a server overload. Default is "5".
     simulate_server_overload = False  # Set this to "True" to simulate server overload. "False" for normal operation.
     
-    openai.api_key_path = ".env"
+    # Load environment variables
+    load_environment()
     
     # Remove the generated audio files
     remove_audio_files()
@@ -103,9 +113,9 @@ def run_glaidos():
 
         # Transcribe the audio using whisper. SpeechRecognition supports a lot of different ways (Google, Whisper API, ...).
         text = recognizer.recognize_whisper(
-            audio_data=audio, model="tiny.en", language="en").strip()
+            audio_data=audio, model="small.en", language="en").strip()
         
-        if text == "you" or text == "" or text == "." or text == "Thank you." or text == "Okay." or text == "Thank you. Thank you.":
+        if text == "you" or text == "" or text == "." or text == "Thank you." or text == "Okay." or text == "Thank you. Thank you." or text == "Thanks.":
             continue
         
         print(f"user: {text}")
@@ -207,6 +217,9 @@ if __name__ == "__main__":
                 os.dup2(orig_stdout_fno, 1)
                 os.dup2(orig_stderr_fno, 2)
 
+    if platform.system() == 'Darwin':
+        torch.backends.quantized.engine = 'qnnpack'
+    
     # Select the device_vocoder
     if torch.is_vulkan_available():
         device_vocoder = 'vulkan'
@@ -220,3 +233,4 @@ if __name__ == "__main__":
     vocoder = torch.jit.load('models/vocoder-gpu.pt', map_location=device_vocoder)
 
     run_glaidos()
+    
