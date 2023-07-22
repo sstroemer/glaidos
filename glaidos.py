@@ -94,52 +94,58 @@ def run_glaidos():
     print("<< launching glAIdos and testing noise levels >>")
     with suppress_stdout():
         recognizer = sr.Recognizer()
-        microphone = sr.Microphone()
+        microphone = sr.Microphone(device_index = None, sample_rate = 44100, chunk_size = 1024)
 
+        recognizer.energy_threshold = 4700 #increase this number if transscription is cut off. Decrease if the end of a message is not correctly detected. Try steps in size of 100. Default (which worked) is 4700
+        recognizer.dynamic_energy_threshold = True
+        recognizer.dynamic_energy_adjustment_damping = 0.15 # 0.15 is default
+        recognizer.dynamic_energy_adjustment_ratio = 1.5 # 1.5 is default
+        recognizer.pause_threshold = 0.8 # 0.8 is default
+        recognizer.operation_timeout = 0.5 # default is None - now set to 0.5 seconds
+        
         # Detect noise levels.
         #with microphone as source:
             #recognizer.adjust_for_ambient_noise(source, duration=5)
-            
-        recognizer.energy_threshold = 4700 #increase this number if transscription is cut off. Decrease if the end of a message is not correctly detected. Try steps in size of 100. Default (which worked) is 4700
-        recognizer.dynamic_energy_threshold = True
-            
+        
     while True:
+        #recognizer.energy_threshold = 4700 #increase this number if transscription is cut off. Decrease if the end of a message is not correctly detected. Try steps in size of 100. Default (which worked) is 4700
+        #recognizer.dynamic_energy_threshold = True
         
         # Detect noise levels.
         #with microphone as source:
             #recognizer.adjust_for_ambient_noise(source, duration=2)
             
-        #recognizer.energy_threshold = 4700 #increase this number if transscription is cut off. Decrease if the end of a message is not correctly detected. Try steps in size of 100. Default (which worked) is 4700
-        #recognizer.dynamic_energy_threshold = True
-        
         print("<< glAIdos is waiting for input >>")
 
         # Get input from the microphone (this can be done with callbacks, etc.).
         with suppress_stdout():
             with microphone as source:
-                audio = recognizer.listen(source, phrase_time_limit=13)
+                audio = recognizer.listen(source, timeout = None, phrase_time_limit = 13, snowboy_configuration = None)
 
         # Transcribe the audio using whisper. SpeechRecognition supports a lot of different ways (Google, Whisper API, ...).
         try:
             #text = recognizer.recognize_google(audio, language = "en-US").strip() #leaving this here if we want to switch to googles solution
-            text = recognizer.recognize_whisper(audio_data=audio, model="medium.en", language="en").strip()
+            #text = recognizer.recognize_whisper(audio_data=audio, model="medium.en", language="en").strip()
+            text = recognizer.recognize_whisper_api(audio_data = audio, model = "whisper-1", api_key = openai.api_key)
         except Exception as e:
             print("Ignoring garbage data.")
             text = ""
         
-        if text == "you" or text == "" or text == "." or text == "Thank you." or text == "Okay." or text == "Thank you. Thank you." or text == "Thanks." or text == "We need to get out of here.":
-            #print(f"WARNING!: Previous Input was ignored - just displayed for debugging. GOT: {text}") # enable this line if further debugging info is required
-            continue
+        if (text == "you" or text == "" or text == "." or text == "Thank you." or text == "Thank you. " or text == "Okay." 
+            or text == "Thank you. Thank you." or text == "Thank you. Thank you. " or text == "Thanks." or text == "We need to get out of here." 
+            or text == "Thank you for watching!" or text == "Thank you for your interest." or text == "Thank you for listening. Have a great day. "):
+                #print(f"WARNING!: Previous Input was ignored - just displayed for debugging. GOT: {text}") # enable this line if further debugging info is required
+                continue
         
-        print(f"user: {text}")
+        print(f"user: ##{text}##")
         
         # Check for "Shut down!" command.
         if ("shut" in text.lower()) and ("down" in text.lower()):
-            print("Shutting down now after next reply.")
+            print("Shutting down now after n∂ext reply.")
             shutdown_soon = 1
 
         # Add the user command.
-        messages.append({"role": "user", "content": text})
+        messages.append({"role": "user", "content": text+" + Remember, you understand german and english, but you answer in english only!"})
 
         # Ask for a proper completion with retries
         while retry_count < max_retries:
