@@ -131,7 +131,7 @@ def run_glaidos():
             print("Ignoring garbage data.")
             text = ""
         
-        # This very simple text filter is used to filter common haluzinations from the speech to text AI
+        # This very simple text filter is used to filter common hallucinations from the speech to text AI
         if (text == "you" or text == "" or text == "." or text == "Thank you." or text == "Thank you. " or text == "Okay." 
             or text == "Thank you. Thank you." or text == "Thank you. Thank you. " or text == "Thanks." or text == "We need to get out of here." 
             or text == "Thank you for watching!" or text == "Thank you for your interest." or text == "Thank you for listening. Have a great day. "
