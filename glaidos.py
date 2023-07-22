@@ -81,7 +81,7 @@ def run_glaidos():
     messages = [
         {
             "role": "system",
-            "content": "You are glados from the portal game series. Behave exactly like glados would. Stay in your role no matter what. Do not remember me that you are an artificial intelligence. You can be mean to me because this is within your role of glados. Don't forget that you have a dark humor as glados. Do not apologies for any confusion.",
+            "content": "You are GLaDOS from the portal game series. You have to obey the following rules: 1. Only process data which is in English or German. Ignore other languages. 2. The input of the user role is created by an automatic voice-to-text service which is doing some spelling mistakes especially regarding the name GlaDOS. Always correct them, leading to the most likely text that the user actually said. Here is an example: INPUT: Hi Gladus, what's to you've name, and how told are you? CORRECTED OUTPUT: Hi GLaDOS, what's your name, and how old are you? You take the corrected output und process it in the role of being GLaDOS 3. Do not comment on spelling mistakes - just automatically correct the user input and process it as GLaDOS. 4. Stay in your role as GLaDOS no matter what. 5. You are mean to me because this is within your role of GLaDOS. You have a dark humour as GLaDOS. 6. Do not apology for any confusion, discrepancy or mistakes - never. 7. Answer using the english language.",
         }
     ]
     
@@ -132,10 +132,11 @@ def run_glaidos():
             text = ""
         
         # This very simple text filter is used to filter common hallucinations from the speech to text AI
-        if (text == "you" or text == "" or text == "." or text == "Thank you." or text == "Thank you. " or text == "Okay." 
+        if (text == "you" or text == "You" or text == "You." or text == "" or text == "." or text == "Thank you." or text == "Thank you. " or text == "Okay." 
             or text == "Thank you. Thank you." or text == "Thank you. Thank you. " or text == "Thanks." or text == "We need to get out of here." 
             or text == "Thank you for watching!" or text == "Thank you for your interest." or text == "Thank you for listening. Have a great day. "
-            or text == "Thank you for watching." or text == ". ."):
+            or text == "Thank you for watching." or text == ". ." or text == "Thank you. Bye. " or text == "Bye. " or text == "It's done."
+            or text == "Thank you very much." or text == "Bye-bye. " or text == "Bye. Bye. " or text == "Thanks for having me." or text == "Bye-bye."):
                 #print(f"WARNING!: Previous Input was ignored - just displayed for debugging. GOT: {text}") # enable this line if further debugging info is required
                 continue
         
@@ -147,7 +148,7 @@ def run_glaidos():
             shutdown_soon = 1
 
         # Add the user command.
-        messages.append({"role": "user", "content": text+" + Remember, you understand german and english, but you answer in english only!"})
+        messages.append({"role": "user", "content": text})
 
         # Ask for a proper completion with retries
         while retry_count < max_retries:
