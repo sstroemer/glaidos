@@ -141,7 +141,7 @@ def run_glaidos():
         
         # Check for "Shut down!" command.
         if ("shut" in text.lower()) and ("down" in text.lower()):
-            print("Shutting down now after n∂ext reply.")
+            print("Shutting down now after next reply.")
             shutdown_soon = 1
 
         # Add the user command.
