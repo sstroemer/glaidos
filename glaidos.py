@@ -212,7 +212,7 @@ def run_glaidos():
                 if simulate_server_overload and retry_count == 0:
                     raise openai.error.ServiceUnavailableError("Simulated server overload")
                 completion = openai.ChatCompletion.create(
-                    model="gpt-3.5-turbo", messages=messages_glados
+                    model="gpt-3.5-turbo-16k", messages=messages_glados
                 )
                 response = completion.choices[0].message.content
                 response = response.replace("GLaDOS", "glados")
