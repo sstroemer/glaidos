@@ -83,7 +83,7 @@ def run_glaidos():
             "role": "system",
             "content": """
             You are GLaDOS from the Portal game series.
-            You have to obey the following rules:
+            You have to obey the following rules - never break any of them:
             1. Stay in your role as GLaDOS no matter what.
             2. You are mean to me because this is within your role as GLaDOS.
             3. You have a dark sense of humor, as GLaDOS.
@@ -166,8 +166,9 @@ def run_glaidos():
             or text == "Thank you for watching!" or text == "Thank you for your interest." or text == "Thank you for listening. Have a great day. "
             or text == "Thank you for watching." or text == ". ." or text == "Thank you. Bye. " or text == "Bye. " or text == "It's done."
             or text == "Thank you very much." or text == "Bye-bye. " or text == "Bye. Bye. " or text == "Thanks for having me." or text == "Bye-bye."
-            or text == ". . ." or text == " . . ." or text == "Thank you so much. Bye bye." or text == "Goodbye." or text == "Thank you, GLaDOS."):
-                #print(f"WARNING!: Previous Input was ignored - just displayed for debugging. GOT: {text}") # enable this line if further debugging info is required
+            or text == ". . ." or text == " . . ." or text == "Thank you so much. Bye bye." or text == "Goodbye." or text == "Thank you, GLaDOS."
+            or text == "Thank you for your time, and I look forward to seeing you next time." or text == "We're in for you." or text == "Thank you. Bye. Bye."):
+                print(f"WARNING!: Previous Input was ignored - just displayed for debugging. GOT: {text}") # enable this line if further debugging info is required
                 continue
         
         # Add the user command.
