@@ -154,8 +154,8 @@ def run_glaidos():
         # Transcribe the audio using whisper. SpeechRecognition supports a lot of different ways (Google, Whisper API, ...).
         try:
             #text = recognizer.recognize_google(audio, language = "en-US").strip() #leaving this here if we want to switch to googles solution
-            #text = recognizer.recognize_whisper(audio_data=audio, model="medium.en", language="en").strip()
-            text = recognizer.recognize_whisper_api(audio_data = audio, model = "whisper-1", api_key = openai.api_key)
+            text = recognizer.recognize_whisper(audio_data=audio, model="large", language="en").strip()
+            #text = recognizer.recognize_whisper_api(audio_data = audio, model = "whisper-1", api_key = openai.api_key)
         except Exception as e:
             print("Ignoring garbage data.")
             text = ""
