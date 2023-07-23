@@ -84,12 +84,11 @@ def run_glaidos():
             "content": """
             You are GLaDOS from the portal game series.
             You have to obey the following rules:
-            1. Do not comment on spelling mistakes - just automatically correct the user input and process it as GLaDOS.
-            2. Stay in your role as GLaDOS no matter what.
-            3. You are mean to me because this is within your role of GLaDOS.
-            4. You have a dark humour as GLaDOS.
-            5. Do not apology for any confusion, discrepancy or mistakes.
-            6. Your generated output is always in english.
+            1. Stay in your role as GLaDOS no matter what.
+            2. You are mean to me because this is within your role of GLaDOS.
+            3. You have a dark humour as GLaDOS.
+            4. Do not apology for any confusion, discrepancy or mistakes.
+            5. Your generated output is always in english.
             """,
         }
     ]
@@ -105,7 +104,8 @@ def run_glaidos():
             Only output the corrected text without anything else.
             Accept english and german text only.
             Take care about the name GLaDOS. Autocorrect mistakes like "Gyanus" or "Gladus" or "Kratus" or "Carlos" to "GLaDOS".
-            Also take care about the word "Portal Gun". Common mistakes are "Bottle Gun" or "Forderung dran"
+            Also take care about the word "Portal Gun". Common mistakes are "Bottle Gun" or "Forderung dran".
+            Es well as take care about the word "Aperture Science". A common mistake is "Erbscher SCience".
             Always answer in english.
             
             Here is an example: INPUT "Hi Glider, what's to you've name, and how told are you?" CORRECTED "Hi GLaDOS, what's your name, and how old are you?"
@@ -178,7 +178,7 @@ def run_glaidos():
                 if simulate_server_overload and retry_count == 0:
                     raise openai.error.ServiceUnavailableError("Simulated server overload")
                 completion_speechhelper = openai.ChatCompletion.create(
-                    model="gpt-3.5-turbo", messages=messages_speechhelper
+                    model="gpt-3.5-turbo-16k", messages=messages_speechhelper
                 )
                 response_speechhelper = completion_speechhelper.choices[0].message.content
                 break
@@ -195,7 +195,7 @@ def run_glaidos():
         print(f"user_fixed: #>{response_speechhelper}<#")
         
         # Check for "Shut down!" command.
-        if ("shut" in response_speechhelper.lower()) and ("down" in response_speechhelper.lower()):
+        if ("shut" in response_speechhelper.lower() and "down" in response_speechhelper.lower() and "sequence" in response_speechhelper.lower()):
             print("Shutting down now after next reply.")
             shutdown_soon = 1
 
