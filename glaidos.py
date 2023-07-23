@@ -106,7 +106,7 @@ def run_glaidos():
             Take care of the name GLaDOS. Autocorrect mistakes like "Gyanus" or "Gladus" or "Kratus" or "Carlos" to "GLaDOS".
             Also, take care of the word "Portal Gun". Common mistakes are "Bottle Gun" or "Forderung dran".
             As well as take care of the word "Aperture Science". A common mistake is "Erbscher SCience".
-            Always answer in English regardless of your input.
+            Always answer in English regardless of your input - but correct obvious mistakes.
             
             Here is an example: INPUT "Hi Glider, what's to you've name, and how told are you?" CORRECTED "Hi GLaDOS, what's your name, and how old are you?"
             Here is another example: INPUT "Hallo Kratos! Wie gähd es tier heut?" CORRECTED "Hello GLaDOS! How are you doing today?" 
@@ -306,10 +306,15 @@ if __name__ == "__main__":
         torch.backends.quantized.engine = 'qnnpack'
     
     # Select the device_vocoder
+    
+    force_cpu_for_vocoder = True;
+    
     if torch.is_vulkan_available():
         device_vocoder = 'vulkan'
     elif torch.cuda.is_available():
         device_vocoder = 'cuda'
+    elif force_cpu_for_vocoder == True:
+        device_vocoder = 'cpu'
     else:
         device_vocoder = 'cpu'
 
