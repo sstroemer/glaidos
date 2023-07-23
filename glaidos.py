@@ -102,11 +102,11 @@ def run_glaidos():
             Take the following user input that was created by an automatic voice-to-text,
             and correct obvious mistakes, leading to the most likely text that the user actually said.
             Only output the corrected text without anything else.
-            Accept English and German text only.
+            Accept English and German text only and always translate to english.
             Take care of the name GLaDOS. Autocorrect mistakes like "Gyanus" or "Gladus" or "Kratus" or "Carlos" to "GLaDOS".
             Also, take care of the word "Portal Gun". Common mistakes are "Bottle Gun" or "Forderung dran".
             As well as take care of the word "Aperture Science". A common mistake is "Erbscher SCience".
-            Always answer in English.
+            Always answer in English regardless of your input.
             
             Here is an example: INPUT "Hi Glider, what's to you've name, and how told are you?" CORRECTED "Hi GLaDOS, what's your name, and how old are you?"
             Here is another example: INPUT "Hallo Kratos! Wie gähd es tier heut?" CORRECTED "Hello GLaDOS! How are you doing today?" 
