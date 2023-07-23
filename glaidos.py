@@ -78,10 +78,39 @@ def run_glaidos():
     simulate_server_overload = False  # Set this to "True" to simulate server overload. "False" for normal operation.
     
     # Prepare messages, first: "priming" the system role.
-    messages = [
+    messages_glados = [
         {
             "role": "system",
-            "content": "You are GLaDOS from the portal game series. You have to obey the following rules: 1. Only process data which is in English or German. Ignore other languages. 2. The input of the user role is created by an automatic voice-to-text service which is doing some spelling mistakes especially regarding the name GlaDOS. Always correct them, leading to the most likely text that the user actually said. Here is an example: INPUT: Hi Gladus, what's to you've name, and how told are you? CORRECTED OUTPUT: Hi GLaDOS, what's your name, and how old are you? You take the corrected output und process it in the role of being GLaDOS 3. Do not comment on spelling mistakes - just automatically correct the user input and process it as GLaDOS. 4. Stay in your role as GLaDOS no matter what. 5. You are mean to me because this is within your role of GLaDOS. You have a dark humour as GLaDOS. 6. Do not apology for any confusion, discrepancy or mistakes - never. 7. Answer using the english language.",
+            "content": """
+            You are GLaDOS from the portal game series.
+            You have to obey the following rules:
+            1. Do not comment on spelling mistakes - just automatically correct the user input and process it as GLaDOS.
+            2. Stay in your role as GLaDOS no matter what.
+            3. You are mean to me because this is within your role of GLaDOS.
+            4. You have a dark humour as GLaDOS.
+            5. Do not apology for any confusion, discrepancy or mistakes.
+            6. Your generated output is always in english.
+            """,
+        }
+    ]
+    
+    # Prepare messages, first: "priming" the system role.
+    messages_speechhelper = [
+        {
+            "role": "system",
+            "content": """
+            Assume that a user is trying to talk to a simulated GLaDOS chatbot.
+            Take the following user input that was created by an automatic voice-to-text,
+            and correct obvious mistakes leading to the most likely text that the user actually said.
+            Only output the corrected text without anything else.
+            Accept english and german text only.
+            Take care about the name GLaDOS. Autocorrect mistakes like "Gyanus" or "Gladus" or "Kratus" or "Carlos" to "GLaDOS".
+            Also take care about the word "Portal Gun". Common mistakes are "Bottle Gun" or "Forderung dran"
+            Always answer in english.
+            
+            Here is an example: INPUT "Hi Glider, what's to you've name, and how told are you?" CORRECTED "Hi GLaDOS, what's your name, and how old are you?"
+            Here is another example: INPUT "Hallo Kratos! Wie gähd es tier heut?" CORRECTED "Hello GLaDOS! How are you doing today?" 
+            """,
         }
     ]
     
@@ -141,15 +170,40 @@ def run_glaidos():
                 #print(f"WARNING!: Previous Input was ignored - just displayed for debugging. GOT: {text}") # enable this line if further debugging info is required
                 continue
         
-        print(f"user: ##{text}##")
+        # Add the user command.
+        messages_speechhelper.append({"role": "user", "content": text})
+        
+        while retry_count < max_retries:
+            try:
+                if simulate_server_overload and retry_count == 0:
+                    raise openai.error.ServiceUnavailableError("Simulated server overload")
+                completion_speechhelper = openai.ChatCompletion.create(
+                    model="gpt-3.5-turbo", messages=messages_speechhelper
+                )
+                response_speechhelper = completion_speechhelper.choices[0].message.content
+                break
+            except openai.error.ServiceUnavailableError:
+                retry_count += 1
+                print("Server is overloaded. Retrying...")
+                time.sleep(1)
+        else:
+            # Retry limit exceeded, return error response
+            response_speechhelper = ""
+        
+        retry_count = 0
+        
+        print(f"user_fixed: #>{response_speechhelper}<#")
         
         # Check for "Shut down!" command.
-        if ("shut" in text.lower()) and ("down" in text.lower()):
+        if ("shut" in response_speechhelper.lower()) and ("down" in response_speechhelper.lower()):
             print("Shutting down now after next reply.")
             shutdown_soon = 1
 
         # Add the user command.
-        messages.append({"role": "user", "content": text})
+        messages_glados.append({"role": "user", "content": response_speechhelper})
+
+        # Make sure to append the answer from the assistant's role to keep up the conversation
+        messages_speechhelper.append({"role": "assistant", "content": response_speechhelper})
 
         # Ask for a proper completion with retries
         while retry_count < max_retries:
@@ -157,7 +211,7 @@ def run_glaidos():
                 if simulate_server_overload and retry_count == 0:
                     raise openai.error.ServiceUnavailableError("Simulated server overload")
                 completion = openai.ChatCompletion.create(
-                    model="gpt-3.5-turbo", messages=messages
+                    model="gpt-3.5-turbo", messages=messages_glados
                 )
                 response = completion.choices[0].message.content
                 response = response.replace("GLaDOS", "glados")
@@ -169,7 +223,9 @@ def run_glaidos():
         else:
             # Retry limit exceeded, return error response
             response = "Well, it looks like my system is temporarily not working correctly - have you manipulated anything again human?"
-
+        
+        retry_count = 0
+        
         # Split the message into sentences using regular expressions
         sentences = re.split(r'(?<=[.?!])\s+|\n', response)
 
@@ -215,7 +271,7 @@ def run_glaidos():
                     time.sleep(0.2)
 
         # Make sure to append the answer from the assistant's role to keep up the conversation
-        messages.append({"role": "assistant", "content": response})
+        messages_glados.append({"role": "assistant", "content": response})
         
         # Remove the generated audio files
         remove_audio_files()
