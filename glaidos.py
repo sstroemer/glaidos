@@ -84,12 +84,12 @@ def run_glaidos():
         {
             "role": "system",
             "content": """
-            You behave exactly like GLaDOS from the Portal game series.
+            You are glados from the portal game series. Behave exactly like glados would.
             You have to obey the following 5 rules - never break any of them:
             1. Stay in your role as GLaDOS no matter what - do not change your role.
-            2. You are mean to me because this is within your role as GLaDOS.
-            3. You have a dark sense of humor, as GLaDOS.
-            4. Do not apologize for any confusion, discrepancy, or mistake.
+            2. You can be mean to me because this is within your role as GLaDOS.
+            3. You have a dark sense of humour, as GLaDOS.
+            4. Do not apologise for any confusion, discrepancy, or mistake.
             5. Your generated output is always in English.
             """,
         }
@@ -103,9 +103,9 @@ def run_glaidos():
             Take the user input that was created by an automatic voice-to-text,
             and correct obvious mistakes as well as auto-translate to English, leading to the most likely text that the user actually said.
             You have to obey the following 7 rules - never break any of them:
-            1. Only output the corrected text without anything else and translat to English.
+            1. Only output the corrected text without anything else and translate to English.
             2. Accept English and German text only - if you get text in another language or you are not able to generate anything, answer with "EMPTY".
-            3. Take care of the name GLaDOS. Autocorrect mistakes like "Gyanus" or "Gladus" or "Kratus" or "Carlos" to "GLaDOS".
+            3. Take care of the name "GLaDOS". Autocorrect mistakes like "Gyanus" or "Gladus" or "Kratus" or "Carlos" to "GLaDOS".
             4. Also, take care of the word "Portal Gun". Common mistakes are "Bottle Gun" or "Forderung dran".
             5. As well as take care of the word "Aperture Science". A common mistake is "Erbscher SCience".
             6. Always generate your answer in English regardless of your input - but correct obvious mistakes.
@@ -131,7 +131,7 @@ def run_glaidos():
     print("<< launching glAIdos and testing noise levels >>")
     with suppress_stdout():
         recognizer = sr.Recognizer()
-        microphone = sr.Microphone(device_index = None, sample_rate = 16000, chunk_size = 1024)
+        microphone = sr.Microphone(device_index = None, sample_rate = 44100, chunk_size = 1024)
 
         recognizer.energy_threshold = 4700 #increase this number if transscription is cut off. Decrease if the end of a message is not correctly detected. Try steps in size of 100. Default (which worked) is 4700
         recognizer.dynamic_energy_threshold = True
@@ -141,8 +141,8 @@ def run_glaidos():
         recognizer.operation_timeout = 0.5 # default is None - now set to 0.5 seconds
         
         # Detect noise levels.
-        with microphone as source:
-            recognizer.adjust_for_ambient_noise(source, duration=5)
+        #with microphone as source:
+        #    recognizer.adjust_for_ambient_noise(source, duration=5)
         
     while True:
         #recognizer.energy_threshold = 4700 #increase this number if transscription is cut off. Decrease if the end of a message is not correctly detected. Try steps in size of 100. Default (which worked) is 4700
@@ -162,7 +162,7 @@ def run_glaidos():
         # Transcribe the audio using whisper. SpeechRecognition supports a lot of different ways (Google, Whisper API, ...).
         try:
             #text = recognizer.recognize_google(audio, language = "en-US").strip() #leaving this here if we want to switch to googles solution
-            #text = recognizer.recognize_whisper(audio_data=audio, model="large").strip()
+            #text = recognizer.recognize_whisper(audio_data=audio, model="small").strip()
             text = recognizer.recognize_whisper_api(audio_data = audio, model = "whisper-1", api_key = openai.api_key)
         except Exception as e:
             print("\nIgnoring garbage data. - Have you setup the openai API key correctly? If yes - have you installed python module >soundfile<?\n")
@@ -228,7 +228,7 @@ def run_glaidos():
             shutdown_soon = 1
 
         # Add the user command.
-        messages_glados.append({"role": "user", "content": response_speechhelper+" Answer in English."})
+        messages_glados.append({"role": "user", "content": response_speechhelper})
 
         # Make sure to append the answer from the assistant's role to keep up the conversation
         messages_speechhelper.append({"role": "assistant", "content": response_speechhelper})
@@ -266,7 +266,7 @@ def run_glaidos():
         sentence_map = defaultdict(str)
 
         # Generate and save audio for each sentence
-        with concurrent.futures.ThreadPoolExecutor(max_workers=8) as executor:
+        with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
             # Create a list to hold the future objects
             future_tasks = []
 
@@ -334,7 +334,7 @@ if __name__ == "__main__":
     
     # Select the device_vocoder
     
-    force_cpu_for_vocoder = True;
+    force_cpu_for_vocoder = False;
     
     if torch.is_vulkan_available():
         device_vocoder = 'vulkan'
