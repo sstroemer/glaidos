@@ -100,23 +100,24 @@ def run_glaidos():
         {
             "role": "system",
             "content": """
-            Assume that a user is trying to talk to a simulated GLaDOS chatbot.
-            Take the following user input that was created by an automatic voice-to-text,
+            Take the user input that was created by an automatic voice-to-text,
             and correct obvious mistakes as well as auto-translate to English, leading to the most likely text that the user actually said.
-            You have to obey the following 6 rules - never break any of them:
-            1. Only output the corrected text without anything else BUT translated to English.
-            2. Accept English and German text only - if you get text in another language only generate "EMPTY" as answer.
+            You have to obey the following 7 rules - never break any of them:
+            1. Only output the corrected text without anything else and translat to English.
+            2. Accept English and German text only - if you get text in another language or you are not able to generate anything, answer with "EMPTY".
             3. Take care of the name GLaDOS. Autocorrect mistakes like "Gyanus" or "Gladus" or "Kratus" or "Carlos" to "GLaDOS".
             4. Also, take care of the word "Portal Gun". Common mistakes are "Bottle Gun" or "Forderung dran".
             5. As well as take care of the word "Aperture Science". A common mistake is "Erbscher SCience".
             6. Always generate your answer in English regardless of your input - but correct obvious mistakes.
+            7. Never apologies and never be sorry. If you are not able to translate answer with "EMPTY"
             
-            Here are 4 examples so you know what to do:
+            Here are 5 examples so you know what to do:
             
             Example #1: INPUT: "Hi Glider, what's to you've name, and how told are you?" OUTPUT: "Hi GLaDOS, what's your name, and how old are you?"
             Example #2: INPUT: "Hallo Kratos! Wie gähd es tier heut?" OUTPUT: "Hello GLaDOS! How are you doing today?" 
             Example #3: INPUT: "绝对不是" OUTPUT: "EMPTY"
             Example #4: INPUT: "Hi GLaDOS, wie geht es dir?" OUTPUT: "Hi GLaDOS, how are you doing today?"
+            Example #5: INPUT: "fhsdopufhopadjpfikshgdsfgjfohfigj" OUTPUT: "EMPTY"
             """,
         }
     ]
@@ -130,7 +131,7 @@ def run_glaidos():
     print("<< launching glAIdos and testing noise levels >>")
     with suppress_stdout():
         recognizer = sr.Recognizer()
-        microphone = sr.Microphone(device_index = None, sample_rate = 44100, chunk_size = 1024)
+        microphone = sr.Microphone(device_index = None, sample_rate = 16000, chunk_size = 1024)
 
         recognizer.energy_threshold = 4700 #increase this number if transscription is cut off. Decrease if the end of a message is not correctly detected. Try steps in size of 100. Default (which worked) is 4700
         recognizer.dynamic_energy_threshold = True
@@ -140,8 +141,8 @@ def run_glaidos():
         recognizer.operation_timeout = 0.5 # default is None - now set to 0.5 seconds
         
         # Detect noise levels.
-        #with microphone as source:
-            #recognizer.adjust_for_ambient_noise(source, duration=5)
+        with microphone as source:
+            recognizer.adjust_for_ambient_noise(source, duration=5)
         
     while True:
         #recognizer.energy_threshold = 4700 #increase this number if transscription is cut off. Decrease if the end of a message is not correctly detected. Try steps in size of 100. Default (which worked) is 4700
@@ -177,8 +178,8 @@ def run_glaidos():
             or text == "Thank you for your time, and I look forward to seeing you next time." or text == "We're in for you." or text == "Thank you. Bye. Bye."
             or text == "Thank you so much for watching!" or text == "Please subscribe to my channel." or text == "Thank you very much for watching until the end."
             or text == "Thank you for chatting." or text == "Thank you for watching the video." or text == "Thank you so much for listening!" or ("Thank you so much for watching" in text)
-            or ("Thank you for watching" in text) or ("please leave them in the comments" in text) or ("Thank you very much for watching" in text) or text == "BANG!"
-            or ("This is MBC News" in text) or ("Thanks for watching" in text)):
+            or ("Thank you for watching" in text) or ("please leave them in the comments" in text) or ("Thank you very much for watching" in text) or text == "BANG!" or text == "Silence."
+            or ("This is MBC News" in text) or ("Thanks for watching" in text) or text == "Oh"):
                 print(f"WARNING!: Previous Input was ignored (>BEFORE< speechAI) - just displayed for debugging. GOT: {text}") # enable this line if further debugging info is required
                 continue
         
@@ -214,8 +215,8 @@ def run_glaidos():
             or response_speechhelper == "Thank you for your time, and I look forward to seeing you next time." or response_speechhelper == "We're in for you." or response_speechhelper == "Thank you. Bye. Bye."
             or response_speechhelper == "Thank you so much for watching!" or response_speechhelper == "Please subscribe to my channel." or response_speechhelper == "Thank you very much for watching until the end."
             or response_speechhelper == "Thank you for chatting." or response_speechhelper == "Thank you for watching the video." or response_speechhelper == "Thank you so much for listening!" or ("Thank you so much for watching" in response_speechhelper)
-            or ("Thank you for watching" in response_speechhelper) or ("please leave them in the comments" in response_speechhelper) or ("Thank you very much for watching" in response_speechhelper) or response_speechhelper == "BANG!"
-            or ("This is MBC News" in response_speechhelper) or response_speechhelper == "EMPTY" or response_speechhelper == "Empty" or ("Thanks for watching" in response_speechhelper)):
+            or ("Thank you for watching" in response_speechhelper) or ("please leave them in the comments" in response_speechhelper) or ("Thank you very much for watching" in response_speechhelper) or response_speechhelper == "BANG!" or response_speechhelper == "Silence."
+            or ("This is MBC News" in response_speechhelper) or response_speechhelper == "EMPTY" or response_speechhelper == "Empty" or ("Thanks for watching" in response_speechhelper) or response_speechhelper == "Oh"):
                 print(f"WARNING!: Previous Input was ignored (>AFTER< speechAI) - just displayed for debugging. GOT: {response_speechhelper}") # enable this line if further debugging info is required
                 continue
         
