@@ -21,12 +21,14 @@ import platform
 lock = threading.Lock()
 
 def load_environment():
-    try:
-        with open(".env", 'r') as file:
-            line = file.readline().strip()
-            openai.api_key = line
-    except FileNotFoundError:
-        print("Warning: '.env' file not found. If you added a path variable in your system - I will use this instead. If not.. it will fail.")
+	try:
+		with open(".env", 'r') as file:
+			line = file.readline().strip()
+			if not line:
+				raise FileNotFoundError()
+			openai.api_key = line
+	except FileNotFoundError as e:
+		print("\nWarning!! '.env' file not found. If you added a path variable in your system - I will use this instead. If not.. it will fail!!\n", e)
 
 def play_wav_files(files):
     files = sorted(files, key=lambda x: int(x[:-4]))  # Sort files based on sentence IDs
@@ -82,9 +84,9 @@ def run_glaidos():
         {
             "role": "system",
             "content": """
-            You are GLaDOS from the Portal game series.
-            You have to obey the following rules - never break any of them:
-            1. Stay in your role as GLaDOS no matter what.
+            You behave exactly like GLaDOS from the Portal game series.
+            You have to obey the following 5 rules - never break any of them:
+            1. Stay in your role as GLaDOS no matter what - do not change your role.
             2. You are mean to me because this is within your role as GLaDOS.
             3. You have a dark sense of humor, as GLaDOS.
             4. Do not apologize for any confusion, discrepancy, or mistake.
@@ -100,16 +102,21 @@ def run_glaidos():
             "content": """
             Assume that a user is trying to talk to a simulated GLaDOS chatbot.
             Take the following user input that was created by an automatic voice-to-text,
-            and correct obvious mistakes, leading to the most likely text that the user actually said.
-            Only output the corrected text without anything else.
-            Accept English and German text only and always translate to english.
-            Take care of the name GLaDOS. Autocorrect mistakes like "Gyanus" or "Gladus" or "Kratus" or "Carlos" to "GLaDOS".
-            Also, take care of the word "Portal Gun". Common mistakes are "Bottle Gun" or "Forderung dran".
-            As well as take care of the word "Aperture Science". A common mistake is "Erbscher SCience".
-            Always answer in English regardless of your input - but correct obvious mistakes.
+            and correct obvious mistakes as well as auto-translate to English, leading to the most likely text that the user actually said.
+            You have to obey the following 6 rules - never break any of them:
+            1. Only output the corrected text without anything else BUT translated to English.
+            2. Accept English and German text only - if you get text in another language only generate "EMPTY" as answer.
+            3. Take care of the name GLaDOS. Autocorrect mistakes like "Gyanus" or "Gladus" or "Kratus" or "Carlos" to "GLaDOS".
+            4. Also, take care of the word "Portal Gun". Common mistakes are "Bottle Gun" or "Forderung dran".
+            5. As well as take care of the word "Aperture Science". A common mistake is "Erbscher SCience".
+            6. Always generate your answer in English regardless of your input - but correct obvious mistakes.
             
-            Here is an example: INPUT "Hi Glider, what's to you've name, and how told are you?" CORRECTED "Hi GLaDOS, what's your name, and how old are you?"
-            Here is another example: INPUT "Hallo Kratos! Wie gähd es tier heut?" CORRECTED "Hello GLaDOS! How are you doing today?" 
+            Here are 4 examples so you know what to do:
+            
+            Example #1: INPUT: "Hi Glider, what's to you've name, and how told are you?" OUTPUT: "Hi GLaDOS, what's your name, and how old are you?"
+            Example #2: INPUT: "Hallo Kratos! Wie gähd es tier heut?" OUTPUT: "Hello GLaDOS! How are you doing today?" 
+            Example #3: INPUT: "绝对不是" OUTPUT: "EMPTY"
+            Example #4: INPUT: "Hi GLaDOS, wie geht es dir?" OUTPUT: "Hi GLaDOS, how are you doing today?"
             """,
         }
     ]
@@ -154,10 +161,10 @@ def run_glaidos():
         # Transcribe the audio using whisper. SpeechRecognition supports a lot of different ways (Google, Whisper API, ...).
         try:
             #text = recognizer.recognize_google(audio, language = "en-US").strip() #leaving this here if we want to switch to googles solution
-            text = recognizer.recognize_whisper(audio_data=audio, model="large", language="en").strip()
-            #text = recognizer.recognize_whisper_api(audio_data = audio, model = "whisper-1", api_key = openai.api_key)
+            #text = recognizer.recognize_whisper(audio_data=audio, model="large").strip()
+            text = recognizer.recognize_whisper_api(audio_data = audio, model = "whisper-1", api_key = openai.api_key)
         except Exception as e:
-            print("Ignoring garbage data.")
+            print("\nIgnoring garbage data. - Have you setup the openai API key correctly? If yes - have you installed python module >soundfile<?\n")
             text = ""
         
         # This very simple text filter is used to filter common hallucinations from the speech to text AI
@@ -167,8 +174,12 @@ def run_glaidos():
             or text == "Thank you for watching." or text == ". ." or text == "Thank you. Bye. " or text == "Bye. " or text == "It's done."
             or text == "Thank you very much." or text == "Bye-bye. " or text == "Bye. Bye. " or text == "Thanks for having me." or text == "Bye-bye."
             or text == ". . ." or text == " . . ." or text == "Thank you so much. Bye bye." or text == "Goodbye." or text == "Thank you, GLaDOS."
-            or text == "Thank you for your time, and I look forward to seeing you next time." or text == "We're in for you." or text == "Thank you. Bye. Bye."):
-                print(f"WARNING!: Previous Input was ignored - just displayed for debugging. GOT: {text}") # enable this line if further debugging info is required
+            or text == "Thank you for your time, and I look forward to seeing you next time." or text == "We're in for you." or text == "Thank you. Bye. Bye."
+            or text == "Thank you so much for watching!" or text == "Please subscribe to my channel." or text == "Thank you very much for watching until the end."
+            or text == "Thank you for chatting." or text == "Thank you for watching the video." or text == "Thank you so much for listening!" or ("Thank you so much for watching" in text)
+            or ("Thank you for watching" in text) or ("please leave them in the comments" in text) or ("Thank you very much for watching" in text) or text == "BANG!"
+            or ("This is MBC News" in text) or ("Thanks for watching" in text)):
+                print(f"WARNING!: Previous Input was ignored (>BEFORE< speechAI) - just displayed for debugging. GOT: {text}") # enable this line if further debugging info is required
                 continue
         
         # Add the user command.
@@ -193,6 +204,21 @@ def run_glaidos():
         
         retry_count = 0
         
+        # This very simple text filter is used to filter common hallucinations from the speech to text AI
+        if (response_speechhelper == "you" or response_speechhelper == "You" or response_speechhelper == "You." or response_speechhelper == "" or response_speechhelper == "." or response_speechhelper == "Thank you." or response_speechhelper == "Thank you. " or response_speechhelper == "Okay." 
+            or response_speechhelper == "Thank you. Thank you." or response_speechhelper == "Thank you. Thank you. " or response_speechhelper == "Thanks." or response_speechhelper == "We need to get out of here." 
+            or response_speechhelper == "Thank you for watching!" or response_speechhelper == "Thank you for your interest." or response_speechhelper == "Thank you for listening. Have a great day. "
+            or response_speechhelper == "Thank you for watching." or response_speechhelper == ". ." or response_speechhelper == "Thank you. Bye. " or response_speechhelper == "Bye. " or response_speechhelper == "It's done."
+            or response_speechhelper == "Thank you very much." or response_speechhelper == "Bye-bye. " or response_speechhelper == "Bye. Bye. " or response_speechhelper == "Thanks for having me." or response_speechhelper == "Bye-bye."
+            or response_speechhelper == ". . ." or response_speechhelper == " . . ." or response_speechhelper == "Thank you so much. Bye bye." or response_speechhelper == "Goodbye." or response_speechhelper == "Thank you, GLaDOS."
+            or response_speechhelper == "Thank you for your time, and I look forward to seeing you next time." or response_speechhelper == "We're in for you." or response_speechhelper == "Thank you. Bye. Bye."
+            or response_speechhelper == "Thank you so much for watching!" or response_speechhelper == "Please subscribe to my channel." or response_speechhelper == "Thank you very much for watching until the end."
+            or response_speechhelper == "Thank you for chatting." or response_speechhelper == "Thank you for watching the video." or response_speechhelper == "Thank you so much for listening!" or ("Thank you so much for watching" in response_speechhelper)
+            or ("Thank you for watching" in response_speechhelper) or ("please leave them in the comments" in response_speechhelper) or ("Thank you very much for watching" in response_speechhelper) or response_speechhelper == "BANG!"
+            or ("This is MBC News" in response_speechhelper) or response_speechhelper == "EMPTY" or response_speechhelper == "Empty" or ("Thanks for watching" in response_speechhelper)):
+                print(f"WARNING!: Previous Input was ignored (>AFTER< speechAI) - just displayed for debugging. GOT: {response_speechhelper}") # enable this line if further debugging info is required
+                continue
+        
         print(f"user_fixed: #>{response_speechhelper}<#")
         
         # Check for "Shut down!" command.
@@ -201,7 +227,7 @@ def run_glaidos():
             shutdown_soon = 1
 
         # Add the user command.
-        messages_glados.append({"role": "user", "content": response_speechhelper})
+        messages_glados.append({"role": "user", "content": response_speechhelper+" Answer in English."})
 
         # Make sure to append the answer from the assistant's role to keep up the conversation
         messages_speechhelper.append({"role": "assistant", "content": response_speechhelper})

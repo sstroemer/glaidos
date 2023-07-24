@@ -5,3 +5,9 @@ torch
 git+https://github.com/openai/whisper.git
 openai
 python-dotenv
+simpleaudio
+phonemizer
+inflect
+unidecode
+scipy
+soundfile
