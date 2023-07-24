@@ -179,7 +179,7 @@ def run_glaidos():
             or text == "Thank you so much for watching!" or text == "Please subscribe to my channel." or text == "Thank you very much for watching until the end."
             or text == "Thank you for chatting." or text == "Thank you for watching the video." or text == "Thank you so much for listening!" or ("Thank you so much for watching" in text)
             or ("Thank you for watching" in text) or ("please leave them in the comments" in text) or ("Thank you very much for watching" in text) or text == "BANG!" or text == "Silence."
-            or ("This is MBC News" in text) or ("Thanks for watching" in text) or text == "Oh"):
+            or ("This is MBC News" in text) or ("Thanks for watching" in text) or text == "Oh" or text == "Peace."):
                 print(f"WARNING!: Previous Input was ignored (>BEFORE< speechAI) - just displayed for debugging. GOT: {text}") # enable this line if further debugging info is required
                 continue
         
@@ -216,7 +216,7 @@ def run_glaidos():
             or response_speechhelper == "Thank you so much for watching!" or response_speechhelper == "Please subscribe to my channel." or response_speechhelper == "Thank you very much for watching until the end."
             or response_speechhelper == "Thank you for chatting." or response_speechhelper == "Thank you for watching the video." or response_speechhelper == "Thank you so much for listening!" or ("Thank you so much for watching" in response_speechhelper)
             or ("Thank you for watching" in response_speechhelper) or ("please leave them in the comments" in response_speechhelper) or ("Thank you very much for watching" in response_speechhelper) or response_speechhelper == "BANG!" or response_speechhelper == "Silence."
-            or ("This is MBC News" in response_speechhelper) or response_speechhelper == "EMPTY" or response_speechhelper == "Empty" or ("Thanks for watching" in response_speechhelper) or response_speechhelper == "Oh"):
+            or ("This is MBC News" in response_speechhelper) or response_speechhelper == "EMPTY" or response_speechhelper == "Empty" or ("Thanks for watching" in response_speechhelper) or response_speechhelper == "Oh" or response_speechhelper == "Peace."):
                 print(f"WARNING!: Previous Input was ignored (>AFTER< speechAI) - just displayed for debugging. GOT: {response_speechhelper}") # enable this line if further debugging info is required
                 continue
         
