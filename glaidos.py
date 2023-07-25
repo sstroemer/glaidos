@@ -205,7 +205,7 @@ def run_glaidos():
             or ("This is MBC News" in text) or ("Thanks for watching" in text) or text == "Oh" or text == "Peace." or ("💜" in text) or ("MBC News" in text) or text == "Thank you!" or ("Please subscribe" in text)
             or text == "Okay. Thank you." or text == "Hi! How can I assist you today?" or ("comments section" in text) or ("😘" in text) or text == "Good night." or ("share this video" in text)
             or text == "Hello." or ("post them in" in text) or text == "Taking a break.." or text == "The video has ended." or text == "Goodbye!" or text == "Bon appétit!" or (".com" in text)
-            or ("and subscribe" in text) or ("But as an AI, I don't" in text)):
+            or ("and subscribe" in text) or ("as an AI, I don't" in text) or ("subscribe, share" in text) or text == "Yes! Yes, obviously."):
                 print(f"WARNING!: Previous Input was ignored (>BEFORE< speechAI) - just displayed for debugging. GOT: {text}") # enable this line if further debugging info is required
                 continue
         
@@ -249,7 +249,8 @@ def run_glaidos():
             or response_speechhelper == "Okay. Thank you." or response_speechhelper == "Hi! How can I assist you today?" or ("comments section" in response_speechhelper) or ("😘" in response_speechhelper)
             or response_speechhelper == "Good night." or ("share this video" in response_speechhelper) or response_speechhelper == "Hello." or ("post them in" in response_speechhelper)
             or response_speechhelper == "Taking a break.." or response_speechhelper == "The video has ended." or response_speechhelper == "Goodbye!" or response_speechhelper == "Bon appétit!"
-            or (".com" in response_speechhelper) or ("and subscribe" in response_speechhelper) or ("But as an AI, I don't" in response_speechhelper)):
+            or (".com" in response_speechhelper) or ("and subscribe" in response_speechhelper) or ("as an AI, I don't" in response_speechhelper) or ("subscribe, share" in response_speechhelper)
+            or response_speechhelper == "Yes! Yes, obviously."):
                 print(f"WARNING!: Previous Input was ignored (>AFTER< speechAI) - just displayed for debugging. GOT: {response_speechhelper}") # enable this line if further debugging info is required
                 continue
         
