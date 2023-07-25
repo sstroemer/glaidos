@@ -181,7 +181,7 @@ def run_glaidos():
             or ("Thank you for watching" in text) or ("please leave them in the comments" in text) or ("Thank you very much for watching" in text) or text == "BANG!" or text == "Silence."
             or ("This is MBC News" in text) or ("Thanks for watching" in text) or text == "Oh" or text == "Peace." or ("💜" in text) or ("MBC News" in text) or text == "Thank you!" or ("Please subscribe" in text) or text == "Okay. Thank you."
             or text == "Hi! How can I assist you today?" or ("comments section" in text) or ("😘" in text) or text == "Good night." or ("share this video" in text) or text == "Hello." or ("post them in" in text) or text == "Taking a break.."
-            or text == "The video has ended." or text == "Goodbye!" or text == "Bon appétit!"):
+            or text == "The video has ended." or text == "Goodbye!" or text == "Bon appétit!" or (".com" in text)):
                 print(f"WARNING!: Previous Input was ignored (>BEFORE< speechAI) - just displayed for debugging. GOT: {text}") # enable this line if further debugging info is required
                 continue
         
@@ -193,7 +193,7 @@ def run_glaidos():
                 if simulate_server_overload and retry_count == 0:
                     raise openai.error.ServiceUnavailableError("Simulated server overload")
                 completion_speechhelper = openai.ChatCompletion.create(
-                    model="gpt-3.5-turbo-16k", temperature=0.3, messages=messages_speechhelper
+                    model="gpt-3.5-turbo-16k", temperature=0.6, messages=messages_speechhelper
                 )
                 response_speechhelper = completion_speechhelper.choices[0].message.content
                 break
@@ -221,7 +221,7 @@ def run_glaidos():
             or ("This is MBC News" in response_speechhelper) or response_speechhelper == "EMPTY" or response_speechhelper == "Empty" or ("Thanks for watching" in response_speechhelper) or response_speechhelper == "Oh" or response_speechhelper == "Peace." or ("💜" in response_speechhelper)
             or ("MBC News" in response_speechhelper) or response_speechhelper == "Thank you!" or ("Please subscribe" in response_speechhelper) or response_speechhelper == "Okay. Thank you." or response_speechhelper == "Hi! How can I assist you today?" or ("comments section" in response_speechhelper)
             or ("😘" in response_speechhelper) or response_speechhelper == "Good night." or ("share this video" in response_speechhelper) or response_speechhelper == "Hello." or ("post them in" in response_speechhelper) or response_speechhelper == "Taking a break.."
-            or response_speechhelper == "The video has ended." or response_speechhelper == "Goodbye!" or response_speechhelper == "Bon appétit!"):
+            or response_speechhelper == "The video has ended." or response_speechhelper == "Goodbye!" or response_speechhelper == "Bon appétit!" or (".com" in response_speechhelper)):
                 print(f"WARNING!: Previous Input was ignored (>AFTER< speechAI) - just displayed for debugging. GOT: {response_speechhelper}") # enable this line if further debugging info is required
                 continue
         
