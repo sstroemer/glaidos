@@ -100,24 +100,24 @@ def run_glaidos():
         {
             "role": "system",
             "content": """
-            Take the user input that was created by an automatic voice-to-text,
+            Take the user input that was created by an automatic voice-to-text service,
             and correct obvious mistakes as well as auto-translate to English, leading to the most likely text that the user actually said.
-            You have to obey the following 7 rules - never break any of them:
+            You have to obey the following 6 rules - never break any of them:
             1. Only output the corrected text without anything else and translate to English.
-            2. Accept English and German text only - if you get text in another language or you are not able to generate anything, answer with "EMPTY".
+            2. Accept English and German text only - if you get text in another language answer with "EMPTY".
             3. Take care of the name "GLaDOS". Autocorrect mistakes like "Gyanus" or "Gladus" or "Kratus" or "Carlos" to "GLaDOS".
             4. Also, take care of the word "Portal Gun". Common mistakes are "Bottle Gun" or "Forderung dran".
             5. As well as take care of the word "Aperture Science". A common mistake is "Erbscher SCience".
             6. Always generate your answer in English regardless of your input - but correct obvious mistakes.
-            7. Never apologies and never be sorry. If you are not able to translate answer with "EMPTY"
             
-            Here are 5 examples so you know what to do:
+            Here are 6 examples so you know what to do:
             
             Example #1: INPUT: "Hi Glider, what's to you've name, and how told are you?" OUTPUT: "Hi GLaDOS, what's your name, and how old are you?"
             Example #2: INPUT: "Hallo Kratos! Wie gähd es tier heut?" OUTPUT: "Hello GLaDOS! How are you doing today?" 
             Example #3: INPUT: "绝对不是" OUTPUT: "EMPTY"
             Example #4: INPUT: "Hi GLaDOS, wie geht es dir?" OUTPUT: "Hi GLaDOS, how are you doing today?"
             Example #5: INPUT: "fhsdopufhopadjpfikshgdsfgjfohfigj" OUTPUT: "EMPTY"
+            Example #6: INPUT: "Kannst du mir Beispiele für temperature settings bei openai geben?" OUTPUT: "Can you give me examples for using temperature within openai?"
             """,
         }
     ]
@@ -131,7 +131,7 @@ def run_glaidos():
     print("<< launching glAIdos and testing noise levels >>")
     with suppress_stdout():
         recognizer = sr.Recognizer()
-        microphone = sr.Microphone(device_index = None, sample_rate = 44100, chunk_size = 1024)
+        microphone = sr.Microphone(device_index = None, sample_rate = 16000, chunk_size = 1024)
 
         recognizer.energy_threshold = 4700 #increase this number if transscription is cut off. Decrease if the end of a message is not correctly detected. Try steps in size of 100. Default (which worked) is 4700
         recognizer.dynamic_energy_threshold = True
@@ -179,7 +179,9 @@ def run_glaidos():
             or text == "Thank you so much for watching!" or text == "Please subscribe to my channel." or text == "Thank you very much for watching until the end."
             or text == "Thank you for chatting." or text == "Thank you for watching the video." or text == "Thank you so much for listening!" or ("Thank you so much for watching" in text)
             or ("Thank you for watching" in text) or ("please leave them in the comments" in text) or ("Thank you very much for watching" in text) or text == "BANG!" or text == "Silence."
-            or ("This is MBC News" in text) or ("Thanks for watching" in text) or text == "Oh" or text == "Peace."):
+            or ("This is MBC News" in text) or ("Thanks for watching" in text) or text == "Oh" or text == "Peace." or ("💜" in text) or ("MBC News" in text) or text == "Thank you!" or ("Please subscribe" in text) or text == "Okay. Thank you."
+            or text == "Hi! How can I assist you today?" or ("comments section" in text) or ("😘" in text) or text == "Good night." or ("share this video" in text) or text == "Hello." or ("post them in" in text) or text == "Taking a break.."
+            or text == "The video has ended."):
                 print(f"WARNING!: Previous Input was ignored (>BEFORE< speechAI) - just displayed for debugging. GOT: {text}") # enable this line if further debugging info is required
                 continue
         
@@ -191,14 +193,14 @@ def run_glaidos():
                 if simulate_server_overload and retry_count == 0:
                     raise openai.error.ServiceUnavailableError("Simulated server overload")
                 completion_speechhelper = openai.ChatCompletion.create(
-                    model="gpt-3.5-turbo-16k", messages=messages_speechhelper
+                    model="gpt-3.5-turbo-16k", temperature=0.3, messages=messages_speechhelper
                 )
                 response_speechhelper = completion_speechhelper.choices[0].message.content
                 break
             except openai.error.ServiceUnavailableError:
                 retry_count += 1
                 print("Server is overloaded. Retrying...")
-                time.sleep(1)
+                time.sleep(0.1)
         else:
             # Retry limit exceeded, return error response
             response_speechhelper = ""
@@ -216,7 +218,10 @@ def run_glaidos():
             or response_speechhelper == "Thank you so much for watching!" or response_speechhelper == "Please subscribe to my channel." or response_speechhelper == "Thank you very much for watching until the end."
             or response_speechhelper == "Thank you for chatting." or response_speechhelper == "Thank you for watching the video." or response_speechhelper == "Thank you so much for listening!" or ("Thank you so much for watching" in response_speechhelper)
             or ("Thank you for watching" in response_speechhelper) or ("please leave them in the comments" in response_speechhelper) or ("Thank you very much for watching" in response_speechhelper) or response_speechhelper == "BANG!" or response_speechhelper == "Silence."
-            or ("This is MBC News" in response_speechhelper) or response_speechhelper == "EMPTY" or response_speechhelper == "Empty" or ("Thanks for watching" in response_speechhelper) or response_speechhelper == "Oh" or response_speechhelper == "Peace."):
+            or ("This is MBC News" in response_speechhelper) or response_speechhelper == "EMPTY" or response_speechhelper == "Empty" or ("Thanks for watching" in response_speechhelper) or response_speechhelper == "Oh" or response_speechhelper == "Peace." or ("💜" in response_speechhelper)
+            or ("MBC News" in response_speechhelper) or response_speechhelper == "Thank you!" or ("Please subscribe" in response_speechhelper) or response_speechhelper == "Okay. Thank you." or response_speechhelper == "Hi! How can I assist you today?" or ("comments section" in response_speechhelper)
+            or ("😘" in response_speechhelper) or response_speechhelper == "Good night." or ("share this video" in response_speechhelper) or response_speechhelper == "Hello." or ("post them in" in response_speechhelper) or response_speechhelper == "Taking a break.."
+            or response_speechhelper == "The video has ended."):
                 print(f"WARNING!: Previous Input was ignored (>AFTER< speechAI) - just displayed for debugging. GOT: {response_speechhelper}") # enable this line if further debugging info is required
                 continue
         
@@ -247,7 +252,7 @@ def run_glaidos():
             except openai.error.ServiceUnavailableError:
                 retry_count += 1
                 print("Server is overloaded. Retrying...")
-                time.sleep(1)
+                time.sleep(0.1)
         else:
             # Retry limit exceeded, return error response
             response = "Well, it looks like my system is temporarily not working correctly - have you manipulated anything again human?"
