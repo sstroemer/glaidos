@@ -197,7 +197,7 @@ def run_glaidos():
         if (text == "you" or text == "You" or text == "You." or text == "" or text == "." or text == "Thank you." or text == "Thank you. " or text == "Okay." 
             or text == "Thank you. Thank you." or text == "Thank you. Thank you. " or text == "Thanks." or text == "We need to get out of here." 
             or text == "Thank you for watching!" or text == "Thank you for your interest." or text == "Thank you for listening. Have a great day. "
-            or text == "Thank you for watching." or text == ". ." or text == "Thank you. Bye. " or text == "Bye. " or text == "It's done."
+            or text == "Thank you for watching." or text == ". ." or text == "Thank you. Bye. " or text == "Bye. " or text == "Bye." or text == "It's done."
             or text == "Thank you very much." or text == "Bye-bye. " or text == "Bye. Bye. " or text == "Thanks for having me." or text == "Bye-bye."
             or text == ". . ." or text == " . . ." or text == "Thank you so much. Bye bye." or text == "Goodbye." or text == "Thank you, GLaDOS."
             or text == "Thank you for your time, and I look forward to seeing you next time." or text == "We're in for you." or text == "Thank you. Bye. Bye."
@@ -206,7 +206,7 @@ def run_glaidos():
             or ("Thank you for watching" in text) or ("please leave them in the comments" in text) or ("Thank you very much for watching" in text) or text == "BANG!" or text == "Silence."
             or ("This is MBC News" in text) or ("Thanks for watching" in text) or text == "Oh" or text == "Peace." or ("💜" in text) or ("MBC News" in text) or text == "Thank you!" or ("Please subscribe" in text)
             or text == "Okay. Thank you." or text == "Hi! How can I assist you today?" or ("comments section" in text) or ("😘" in text) or text == "Good night." or ("share this video" in text)
-            or text == "Hello." or ("post them in" in text) or text == "Taking a break.." or text == "The video has ended." or text == "Goodbye!" or text == "Bon appétit!" or (".com" in text)
+            or text == "Hello." or ("post them in" in text) or text == "Taking a break.." or text == "The video has ended." or text == "Goodbye!" or text == "Bon appétit!" or (".co" in text)
             or ("and subscribe" in text) or ("as an AI, I don't" in text) or ("subscribe, share" in text) or text == "Yes! Yes, obviously." or text == "Bon Appetit!" or text == "I love you. I miss you. I love you."
             or text == "Hello!"):
                 print(f"WARNING!: Previous Input was ignored (>BEFORE< speechAI) - just displayed for debugging. GOT: {text}") # enable this line if further debugging info is required
@@ -238,7 +238,7 @@ def run_glaidos():
         if (response_speechhelper == "you" or response_speechhelper == "You" or response_speechhelper == "You." or response_speechhelper == "" or response_speechhelper == "." or response_speechhelper == "Thank you." or response_speechhelper == "Thank you. " or response_speechhelper == "Okay." 
             or response_speechhelper == "Thank you. Thank you." or response_speechhelper == "Thank you. Thank you. " or response_speechhelper == "Thanks." or response_speechhelper == "We need to get out of here." 
             or response_speechhelper == "Thank you for watching!" or response_speechhelper == "Thank you for your interest." or response_speechhelper == "Thank you for listening. Have a great day. "
-            or response_speechhelper == "Thank you for watching." or response_speechhelper == ". ." or response_speechhelper == "Thank you. Bye. " or response_speechhelper == "Bye. "
+            or response_speechhelper == "Thank you for watching." or response_speechhelper == ". ." or response_speechhelper == "Thank you. Bye. " or response_speechhelper == "Bye. " or response_speechhelper == "Bye."
             or response_speechhelper == "It's done." or response_speechhelper == "Thank you very much." or response_speechhelper == "Bye-bye. " or response_speechhelper == "Bye. Bye. "
             or response_speechhelper == "Thanks for having me." or response_speechhelper == "Bye-bye." or response_speechhelper == ". . ." or response_speechhelper == " . . ."
             or response_speechhelper == "Thank you so much. Bye bye." or response_speechhelper == "Goodbye." or response_speechhelper == "Thank you, GLaDOS."
@@ -252,7 +252,7 @@ def run_glaidos():
             or response_speechhelper == "Okay. Thank you." or response_speechhelper == "Hi! How can I assist you today?" or ("comments section" in response_speechhelper) or ("😘" in response_speechhelper)
             or response_speechhelper == "Good night." or ("share this video" in response_speechhelper) or response_speechhelper == "Hello." or ("post them in" in response_speechhelper)
             or response_speechhelper == "Taking a break.." or response_speechhelper == "The video has ended." or response_speechhelper == "Goodbye!" or response_speechhelper == "Bon appétit!"
-            or (".com" in response_speechhelper) or ("and subscribe" in response_speechhelper) or ("as an AI, I don't" in response_speechhelper) or ("subscribe, share" in response_speechhelper)
+            or (".co" in response_speechhelper) or ("and subscribe" in response_speechhelper) or ("as an AI, I don't" in response_speechhelper) or ("subscribe, share" in response_speechhelper)
             or response_speechhelper == "Yes! Yes, obviously." or response_speechhelper == "Bon Appetit!" or response_speechhelper == "I love you. I miss you. I love you."
             or response_speechhelper == "Hello!"):
                 print(f"WARNING!: Previous Input was ignored (>AFTER< speechAI) - just displayed for debugging. GOT: {response_speechhelper}") # enable this line if further debugging info is required
