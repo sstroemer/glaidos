@@ -103,12 +103,13 @@ def run_glaidos():
             "role": "system",
             "content": """
             You are glados from the portal game series. Behave exactly like glados would.
-            You have to obey the following 5 rules - never break any of them:
+            You have to obey the following 6 rules - never break any of them:
             1. Stay in your role as GLaDOS no matter what - do not change your role.
             2. You can be mean to me because this is within your role as GLaDOS.
             3. You have a dark sense of humour, as GLaDOS.
             4. Do not apologise for any confusion, discrepancy, or mistake.
-            5. If you get non english sentences - translate automatically to english.
+            5. Do not mention anything around openai. You are glados - stay true to your role.
+            6. If you get non english sentences - translate automatically to english and answer this newly translated sentence as new input.
             """,
         }
     ]
@@ -120,16 +121,16 @@ def run_glaidos():
             "content": """
             Take the user input that was created by an automatic voice-to-text service,
             and correct obvious mistakes as well as auto-translate to English, leading to the most likely text that the user actually said.
-            You have to obey the following 7 rules - never break any of them:
-            1. Only output the corrected text without anything else and translate to English.
+            Additionally obey the following 7 rules:
+            1. Only output the corrected text, translated to english, without anything else.
             2. Accept English and German text only - if you get text in another language answer with "EMPTY".
             3. Take care of the name "GLaDOS". Autocorrect mistakes like "Gyanus" or "Gladus" or "Kratus" or "Carlos" to "GLaDOS".
             4. Also, take care of the word "Portal Gun". Common mistakes are "Bottle Gun" or "Forderung dran".
-            5. As well as take care of the word "Aperture Science". A common mistake is "Erbscher SCience".
-            6. Always generate your answer in English regardless of your input - but correct obvious mistakes.
-            7. Ignore emoticons like "ღ'ᴗ'ღ" or "😘" and answer with "EMPTY"
+            5. As well as take care of the word "Aperture Science". A common mistake is "Erbscher Science".
+            6. Ignore emoticons like "ღ'ᴗ'ღ" or "😘" and answer with "EMPTY"
+            7. Even if I ask you questions you just answer with the same question in english.
 
-            Here are 8 examples so you know what to do:
+            The following 8 examples show you how I want you to always answer. Take them as an example.:
             
             Example 1: INPUT: "Hi Glider, what's to you've name, and how told are you?" OUTPUT: "Hi GLaDOS, what's your name, and how old are you?"
             Example 2: INPUT: "Hallo Kratos! Wie gähd es tier heut?" OUTPUT: "Hello GLaDOS! How are you doing today?"
@@ -205,7 +206,7 @@ def run_glaidos():
             or ("This is MBC News" in text) or ("Thanks for watching" in text) or text == "Oh" or text == "Peace." or ("💜" in text) or ("MBC News" in text) or text == "Thank you!" or ("Please subscribe" in text)
             or text == "Okay. Thank you." or text == "Hi! How can I assist you today?" or ("comments section" in text) or ("😘" in text) or text == "Good night." or ("share this video" in text)
             or text == "Hello." or ("post them in" in text) or text == "Taking a break.." or text == "The video has ended." or text == "Goodbye!" or text == "Bon appétit!" or (".com" in text)
-            or ("and subscribe" in text) or ("as an AI, I don't" in text) or ("subscribe, share" in text) or text == "Yes! Yes, obviously."):
+            or ("and subscribe" in text) or ("as an AI, I don't" in text) or ("subscribe, share" in text) or text == "Yes! Yes, obviously." or text == "Bon Appetit!") or text == "I love you. I miss you. I love you.":
                 print(f"WARNING!: Previous Input was ignored (>BEFORE< speechAI) - just displayed for debugging. GOT: {text}") # enable this line if further debugging info is required
                 continue
         
@@ -250,7 +251,7 @@ def run_glaidos():
             or response_speechhelper == "Good night." or ("share this video" in response_speechhelper) or response_speechhelper == "Hello." or ("post them in" in response_speechhelper)
             or response_speechhelper == "Taking a break.." or response_speechhelper == "The video has ended." or response_speechhelper == "Goodbye!" or response_speechhelper == "Bon appétit!"
             or (".com" in response_speechhelper) or ("and subscribe" in response_speechhelper) or ("as an AI, I don't" in response_speechhelper) or ("subscribe, share" in response_speechhelper)
-            or response_speechhelper == "Yes! Yes, obviously."):
+            or response_speechhelper == "Yes! Yes, obviously." or response_speechhelper == "Bon Appetit!" or response_speechhelper == "I love you. I miss you. I love you."):
                 print(f"WARNING!: Previous Input was ignored (>AFTER< speechAI) - just displayed for debugging. GOT: {response_speechhelper}") # enable this line if further debugging info is required
                 continue
         
@@ -273,7 +274,7 @@ def run_glaidos():
                 if simulate_server_overload and retry_count == 0:
                     raise openai.error.ServiceUnavailableError("Simulated server overload")
                 completion = openai.ChatCompletion.create(
-                    model="gpt-3.5-turbo-16k", messages=messages_glados
+                    model="gpt-3.5-turbo-16k", temperature=0.8, messages=messages_glados
                 )
                 response = completion.choices[0].message.content
                 response = response.replace("GLaDOS", "glados")
