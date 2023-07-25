@@ -20,6 +20,8 @@ import platform
 # Create a lock for thread synchronization
 lock = threading.Lock()
 
+first_sentence_playing = True
+
 def load_environment():
 	try:
 		with open(".env", 'r') as file:
@@ -31,6 +33,8 @@ def load_environment():
 		print("\nWarning!! '.env' file not found. If you added a path variable in your system - I will use this instead. If not.. it will fail!!\n", e)
 
 def play_wav_files(files):
+    while(first_sentence_playing == True):
+        time.sleep(0.1)
     files = sorted(files, key=lambda x: int(x[:-4]))  # Sort files based on sentence IDs
     for i, file in enumerate(files):
         wave_obj = sa.WaveObject.from_wave_file(file)
@@ -41,7 +45,6 @@ def play_wav_files(files):
             next_file = files[i + 1]
             while not os.path.exists(next_file):
                 time.sleep(0.2)
-
 
 def generate_and_save_audio(sentence, output_file):
     # Tokenize, clean, and phonemize input text
@@ -73,6 +76,21 @@ def process_sentence(sentence, sentence_id):
 
     return output_file
 
+# Function to process the first sentence and set higher priority
+def process_first_sentence(sentence):
+    global first_sentence_playing
+    with lock:
+        first_sentence_playing = True
+        try:
+            # Generate unique output file name for the first sentence
+            output_file = "999.wav"
+            generate_and_save_audio(sentence, output_file)
+            wave_obj = sa.WaveObject.from_wave_file(output_file)
+            play_obj = wave_obj.play()
+            play_obj.wait_done()
+        finally:
+            first_sentence_playing = False
+
 def run_glaidos():
     shutdown_soon = 0
     retry_count = 0
@@ -90,7 +108,7 @@ def run_glaidos():
             2. You can be mean to me because this is within your role as GLaDOS.
             3. You have a dark sense of humour, as GLaDOS.
             4. Do not apologise for any confusion, discrepancy, or mistake.
-            5. Your generated output is always in English.
+            5. If you get non english sentences - translate automatically to english.
             """,
         }
     ]
@@ -102,22 +120,25 @@ def run_glaidos():
             "content": """
             Take the user input that was created by an automatic voice-to-text service,
             and correct obvious mistakes as well as auto-translate to English, leading to the most likely text that the user actually said.
-            You have to obey the following 6 rules - never break any of them:
+            You have to obey the following 7 rules - never break any of them:
             1. Only output the corrected text without anything else and translate to English.
             2. Accept English and German text only - if you get text in another language answer with "EMPTY".
             3. Take care of the name "GLaDOS". Autocorrect mistakes like "Gyanus" or "Gladus" or "Kratus" or "Carlos" to "GLaDOS".
             4. Also, take care of the word "Portal Gun". Common mistakes are "Bottle Gun" or "Forderung dran".
             5. As well as take care of the word "Aperture Science". A common mistake is "Erbscher SCience".
             6. Always generate your answer in English regardless of your input - but correct obvious mistakes.
+            7. Ignore emoticons like "ღ'ᴗ'ღ" or "😘" and answer with "EMPTY"
+
+            Here are 8 examples so you know what to do:
             
-            Here are 6 examples so you know what to do:
-            
-            Example #1: INPUT: "Hi Glider, what's to you've name, and how told are you?" OUTPUT: "Hi GLaDOS, what's your name, and how old are you?"
-            Example #2: INPUT: "Hallo Kratos! Wie gähd es tier heut?" OUTPUT: "Hello GLaDOS! How are you doing today?" 
-            Example #3: INPUT: "绝对不是" OUTPUT: "EMPTY"
-            Example #4: INPUT: "Hi GLaDOS, wie geht es dir?" OUTPUT: "Hi GLaDOS, how are you doing today?"
-            Example #5: INPUT: "fhsdopufhopadjpfikshgdsfgjfohfigj" OUTPUT: "EMPTY"
-            Example #6: INPUT: "Kannst du mir Beispiele für temperature settings bei openai geben?" OUTPUT: "Can you give me examples for using temperature within openai?"
+            Example 1: INPUT: "Hi Glider, what's to you've name, and how told are you?" OUTPUT: "Hi GLaDOS, what's your name, and how old are you?"
+            Example 2: INPUT: "Hallo Kratos! Wie gähd es tier heut?" OUTPUT: "Hello GLaDOS! How are you doing today?"
+            Example 3: INPUT: "绝对不是" OUTPUT: "EMPTY"
+            Example 4: INPUT: "Hi GLaDOS, wie geht es dir?" OUTPUT: "Hi GLaDOS, how are you doing today?"
+            Example 5: INPUT: "fhsdopufhopadjpfikshgdsfgjfohfigj" OUTPUT: "EMPTY"
+            Example 6: INPUT: "Kannst du mir Beispiele für temperature settings bei openai geben?" OUTPUT: "Can you give me examples for using temperature within openai?"
+            Example 7: INPUT: " ٩(⊙‿⊙)۶" OUTPUT: "EMPTY"
+            Example 8: INPUT: "Hey GLaDOS, ich bin zurück. Wie geht's dir?" OUTPUT: "Hi GLaDOS. I am back! How are you?"
             """,
         }
     ]
@@ -125,8 +146,10 @@ def run_glaidos():
     # Load environment variables
     load_environment()
     
+    current_folder_path = os.getcwd()
+
     # Remove the generated audio files
-    remove_audio_files()
+    remove_wav_files(current_folder_path)
     
     print("<< launching glAIdos and testing noise levels >>")
     with suppress_stdout():
@@ -194,7 +217,7 @@ def run_glaidos():
                 if simulate_server_overload and retry_count == 0:
                     raise openai.error.ServiceUnavailableError("Simulated server overload")
                 completion_speechhelper = openai.ChatCompletion.create(
-                    model="gpt-3.5-turbo-16k", temperature=0.6, messages=messages_speechhelper
+                    model="gpt-3.5-turbo-16k", temperature=0.8, messages=messages_speechhelper
                 )
                 response_speechhelper = completion_speechhelper.choices[0].message.content
                 break
@@ -275,7 +298,11 @@ def run_glaidos():
         # Create a dictionary to store the sentence IDs and corresponding sentences
         sentence_map = defaultdict(str)
 
-        # Generate and save audio for each sentence
+        # Generate the first sentence's .wav file with higher priority
+        first_sentence_thread = threading.Thread(target=process_first_sentence, args=(sentences[0],))
+        first_sentence_thread.start()
+
+        # Generate and save audio for the remaining sentences in parallel
         with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
             # Create a list to hold the future objects
             future_tasks = []
@@ -283,8 +310,8 @@ def run_glaidos():
             # Create a set to keep track of the completed sentences
             completed_sentences = set()
 
-            # Iterate over the sentences and submit audio generation tasks
-            for sentence_id, sentence in enumerate(sentences):
+            # Iterate over the remaining sentences and submit audio generation tasks
+            for sentence_id, sentence in enumerate(sentences[1:], start=1):
                 # Submit the audio generation task to the executor
                 future = executor.submit(process_sentence, sentence, sentence_id)
                 future_tasks.append((future, sentence_id))
@@ -312,15 +339,16 @@ def run_glaidos():
         messages_glados.append({"role": "assistant", "content": response})
         
         # Remove the generated audio files
-        remove_audio_files()
+        remove_wav_files(current_folder_path)
         if(shutdown_soon == 1):
             break
 
-def remove_audio_files():
-    files = [f'{i:03d}.wav' for i in range(len(os.listdir()))]
-    for file in files:
-        if os.path.exists(file):
-            os.remove(file)
+def remove_wav_files(folder_path):
+    for filename in os.listdir(folder_path):
+        if filename.endswith(".wav"):
+            file_path = os.path.join(folder_path, filename)
+            os.remove(file_path)
+
 
 if __name__ == "__main__":
     load_dotenv()
