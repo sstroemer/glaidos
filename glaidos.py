@@ -109,7 +109,7 @@ def run_glaidos():
             3. You have a dark sense of humour, as GLaDOS.
             4. Do not apologise for any confusion, discrepancy, or mistake.
             5. Do not mention anything around openai. You are glados - stay true to your role.
-            6. If you get non english sentences - translate automatically to english and answer this newly translated sentence as new input.
+            6. Output in english.
             """,
         }
     ]
@@ -119,15 +119,16 @@ def run_glaidos():
         {
             "role": "system",
             "content": """
-            Your role is a text translator. You will get text as input, which you translate to english.
-            Correct obvious mistakes within the text.
-            Additionally, obey the following 6 rules:
-            1. Only output the corrected, translated text to English, without anything else.
-            2. Take care of the name "GLaDOS". Autocorrect mistakes like "Gyanus" or "Gladus" or "Kratus" or "Carlos" to "GLaDOS".
-            3. Also, take care of the word "Portal Gun". Common mistakes are "Bottle Gun" or "Forderung dran".
-            4. As well as take care of the word "Aperture Science". A common mistake is "Erbscher Science".
-            5. If you detect emoticons like "ღ'ᴗ'ღ" or "😘" answer with "EMPTY"
-            6. Even if I ask you questions, do not answer them and reply with the english translation only.
+            Take the user input that was created by an automatic voice-to-text service, correct obvious mistakes and translate to English, leading to the most likely text that the user actually said.
+            Mistakes could be:
+            "Gyanus" or "Gladus" or "Kratus" or "Carlos" which should be "GLaDOS".
+            "Bottle Gun" or "Forderung dran" which should be "Portal Gun"
+            "Erbscher Science" which should be "Aperture Science"
+
+            Additionally, obey the following 3 rules:
+            1. Only output the corrected, translated text to English, without anything else
+            2. If you detect emoticons like "ღ'ᴗ'ღ" or "😘" answer with "EMPTY"
+            3. Even if there are questions within the text, do not answer them and reply with the english translation only
 
             The following 9 examples show you how I want you to answer:
             
@@ -206,7 +207,8 @@ def run_glaidos():
             or ("This is MBC News" in text) or ("Thanks for watching" in text) or text == "Oh" or text == "Peace." or ("💜" in text) or ("MBC News" in text) or text == "Thank you!" or ("Please subscribe" in text)
             or text == "Okay. Thank you." or text == "Hi! How can I assist you today?" or ("comments section" in text) or ("😘" in text) or text == "Good night." or ("share this video" in text)
             or text == "Hello." or ("post them in" in text) or text == "Taking a break.." or text == "The video has ended." or text == "Goodbye!" or text == "Bon appétit!" or (".com" in text)
-            or ("and subscribe" in text) or ("as an AI, I don't" in text) or ("subscribe, share" in text) or text == "Yes! Yes, obviously." or text == "Bon Appetit!") or text == "I love you. I miss you. I love you.":
+            or ("and subscribe" in text) or ("as an AI, I don't" in text) or ("subscribe, share" in text) or text == "Yes! Yes, obviously." or text == "Bon Appetit!" or text == "I love you. I miss you. I love you."
+            or text == "Hello!"):
                 print(f"WARNING!: Previous Input was ignored (>BEFORE< speechAI) - just displayed for debugging. GOT: {text}") # enable this line if further debugging info is required
                 continue
         
@@ -251,7 +253,8 @@ def run_glaidos():
             or response_speechhelper == "Good night." or ("share this video" in response_speechhelper) or response_speechhelper == "Hello." or ("post them in" in response_speechhelper)
             or response_speechhelper == "Taking a break.." or response_speechhelper == "The video has ended." or response_speechhelper == "Goodbye!" or response_speechhelper == "Bon appétit!"
             or (".com" in response_speechhelper) or ("and subscribe" in response_speechhelper) or ("as an AI, I don't" in response_speechhelper) or ("subscribe, share" in response_speechhelper)
-            or response_speechhelper == "Yes! Yes, obviously." or response_speechhelper == "Bon Appetit!" or response_speechhelper == "I love you. I miss you. I love you."):
+            or response_speechhelper == "Yes! Yes, obviously." or response_speechhelper == "Bon Appetit!" or response_speechhelper == "I love you. I miss you. I love you."
+            or response_speechhelper == "Hello!"):
                 print(f"WARNING!: Previous Input was ignored (>AFTER< speechAI) - just displayed for debugging. GOT: {response_speechhelper}") # enable this line if further debugging info is required
                 continue
         
