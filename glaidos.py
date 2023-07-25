@@ -129,7 +129,7 @@ def run_glaidos():
             5. If you detect emoticons like "ღ'ᴗ'ღ" or "😘" answer with "EMPTY"
             6. Even if I ask you questions, do not answer them and reply with the english translation only.
 
-            The following 8 examples show you how I want you to always answer. Take them as an example.:
+            The following 9 examples show you how I want you to answer:
             
             Example 1: INPUT: "Hi Glider, what's to you've name, and how told are you?" OUTPUT: "Hi GLaDOS, what's your name, and how old are you?"
             Example 2: INPUT: "Hallo Kratos! Wie gähd es tier heut?" OUTPUT: "Hello GLaDOS! How are you doing today?"
@@ -139,6 +139,7 @@ def run_glaidos():
             Example 6: INPUT: "Kannst du mir Beispiele für temperature settings bei openai geben?" OUTPUT: "Can you give me examples for using temperature within openai?"
             Example 7: INPUT: " ٩(⊙‿⊙)۶" OUTPUT: "EMPTY"
             Example 8: INPUT: "Hey GLaDOS, ich bin zurück. Wie geht's dir?" OUTPUT: "Hi GLaDOS. I am back! How are you?"
+            Example 9: INPUT: "Für was steht eigentlich BIOS?" OUTPUT: "What does actually BIOS stand for?"
             """,
         }
     ]
