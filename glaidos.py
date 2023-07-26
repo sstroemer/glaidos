@@ -22,6 +22,8 @@ lock = threading.Lock()
 
 first_sentence_playing = True
 
+donotremember = False
+
 def load_environment():
 	try:
 		with open(".env", 'r') as file:
@@ -119,22 +121,15 @@ def run_glaidos():
         {
             "role": "user",
             "content": """
-            Take the user input that was created by an automatic voice-to-text service, correct obvious mistakes, leading to the most likely text that the user actually said.
+            Take the user input that was created by an automatic voice-to-text service and correct obvious mistakes, leading to the most likely text that the user actually said.
+            Do not change the meaning of the sentence. Only look at spelling mistakes and grammar errors. If there are no obvious errors within the text, reply with the unchanged text.
             Mistakes could be:
-            "Gyanus" or "Gladus" or "Kratus" or "Carlos" which should be "GLaDOS".
-            "Bottle Gun" or "Forderung dran" which should be "Portal Gun"
+            "Kratus" or "Carlos" or "Sankt Klaus" or "Santa Claus" which should be "GLaDOS"
+            "Carolyn" or "Caroline" which should be "Caroline"
+            "Bottle Gun" or "Forderung dran" or "portal card" which should be "Portal Gun"
             "Erbscher Science" which should be "Aperture Science"
 
-            Here are some examples:
-            
-            Example 1: user: "Hi Glider, what's to you've name, and how told are you?" assistant: "Hi GLaDOS, what's your name, and how old are you?"
-            Example 2: user: "Hallo Kratos! Wie gähd es tier heut?" assistant: "Hello GLaDOS! How are you doing today?"
-            Example 3: user: "Hi GLaDOS, wie geht es dir?" assistant: "Hi GLaDOS, how are you doing today?"
-            Example 4: user: "Kannst du mir Beispiele für temperature settings bei openai geben?" assistant: "Can you give me examples for using temperature within openai?"
-            Example 5: user: "Hey GLaDOS, ich bin zurück. Wie geht's dir?" assistant: "Hi GLaDOS. I am back! How are you?"
-            Example 6: user: "Für was steht eigentlich BIOS?" assistant: "What does actually BIOS stand for?"
-
-            Here is the text:"
+            user:"
             """,
         }
     ]
@@ -144,8 +139,11 @@ def run_glaidos():
         {
             "role": "user",
             "content": """
-            You are a text translator. Translate the following text to english.
-            Here is the text: "
+            You are a text translator. Translate the following text to english. Only answer with the translated text. Do not change the meaning of the sentence. Only translate. Fix common mistakes with the phrase "Portal Gun".
+            Common mistakes are:
+            "Bottle Gun" or "Forderung dran" or "portal card" or "Portenkarten" or "Porten gang" which should be "Portal Gun"
+            
+            user: "
             """,
         }
     ]
@@ -199,6 +197,8 @@ def run_glaidos():
             print("\nIgnoring garbage data. - Have you setup the openai API key correctly? If yes - have you installed python module >soundfile<?\n")
             text = ""
         
+        print(f"DEBUG: RAW-UNFILTERED-SPEECH---- #>{text}<#")
+            
         # This very simple text filter is used to filter common hallucinations from the speech to text AI
         if (text == "you" or text == "You" or text == "You." or text == "" or text == "." or text == "Thank you." or text == "Thank you. " or text == "Okay." 
             or text == "Thank you. Thank you." or text == "Thank you. Thank you. " or text == "Thanks." or text == "We need to get out of here." 
@@ -214,7 +214,7 @@ def run_glaidos():
             or text == "Okay. Thank you." or text == "Hi! How can I assist you today?" or ("comments section" in text) or ("😘" in text) or text == "Good night." or ("share this video" in text)
             or text == "Hello." or ("post them in" in text) or text == "Taking a break.." or text == "The video has ended." or text == "Goodbye!" or text == "Bon appétit!" or (".co" in text)
             or ("and subscribe" in text) or ("as an AI, I don't" in text) or ("subscribe, share" in text) or text == "Yes! Yes, obviously." or text == "Bon Appetit!" or text == "I love you. I miss you. I love you."
-            or text == "Hello!" or ("the next video" in text) or ("can use applications like this" in text) or text == "Wow."):
+            or text == "Hello!" or ("the next video" in text) or ("can use applications like this" in text) or text == "Wow." or text == "Thank you. Bye."):
                 print(f"DEBUG: Previous Input was ignored! (>BEFORE< speechAI) - ## {text} ##") # enable this line if further debugging info is required
                 continue
         
@@ -248,18 +248,23 @@ def run_glaidos():
             {
                 "role": "user",
                 "content": """
-                You are a text translator. Translate the following text to english.
-                Here is the text: "
+                You are a text translator. Translate the following text to english. Only answer with the translated text. Do not change the meaning of the sentence. Only translate. Fix common mistakes with the phrase "Portal Gun".
+                Common mistakes are:
+                "Bottle Gun" or "Forderung dran" or "portal card" or "Portenkarten" or "Porten gang" which should be "Portal Gun"
+                
+                user: "
                 """,
             }
         ]
+    
+        print(f"DEBUG: TRANSLATOR---- #>{response_translator}<#")
     
         while retry_count < max_retries:
             try:
                 if simulate_server_overload and retry_count == 0:
                     raise openai.error.ServiceUnavailableError("Simulated server overload")
                 completion_speechhelper = openai.ChatCompletion.create(
-                    model="gpt-3.5-turbo", temperature=0.8, messages=messages_speechhelper
+                    model="gpt-3.5-turbo", temperature=0.3, messages=messages_speechhelper
                 )
                 response_speechhelper = completion_speechhelper.choices[0].message.content
                 break
@@ -293,14 +298,14 @@ def run_glaidos():
             or response_speechhelper == "Taking a break.." or response_speechhelper == "The video has ended." or response_speechhelper == "Goodbye!" or response_speechhelper == "Bon appétit!"
             or (".co" in response_speechhelper) or ("and subscribe" in response_speechhelper) or ("as an AI, I don't" in response_speechhelper) or ("subscribe, share" in response_speechhelper)
             or response_speechhelper == "Yes! Yes, obviously." or response_speechhelper == "Bon Appetit!" or response_speechhelper == "I love you. I miss you. I love you."
-            or response_speechhelper == "Hello!" or ("the next video" in response_speechhelper) or ("can use applications like this" in response_speechhelper) or response_speechhelper == "Wow."):
+            or response_speechhelper == "Hello!" or ("the next video" in response_speechhelper) or ("can use applications like this" in response_speechhelper) or response_speechhelper == "Wow." or response_speechhelper == "Thank you. Bye."):
                 print(f"DEBUG: Previous Input was ignored! (>BEFORE< speechAI) - ## {text} ##")            
                 print(f"DEBUG: Previous Input was ignored! (>AFTER< speechAI) - ## {response_speechhelper} ##") # enable this line if further debugging info is required
                 continue
         
         response_speechhelper = response_speechhelper.replace("Klaus", "GLaDOS")
         
-        print(f"user_fixed: #>{response_speechhelper}<#")
+        print(f"INPUT-GLADOS: #>{response_speechhelper}<#")
         
         # Check for "Shut down!" command.
         if ("shut" in response_speechhelper.lower() and "down" in response_speechhelper.lower() and "sequence" in response_speechhelper.lower()):
@@ -315,46 +320,45 @@ def run_glaidos():
             {
                 "role": "user",
                 "content": """
-                Take the user input that was created by an automatic voice-to-text service, correct obvious mistakes, leading to the most likely text that the user actually said.
+                Take the user input that was created by an automatic voice-to-text service and correct obvious mistakes, leading to the most likely text that the user actually said.
+                Do not change the meaning of the sentence. Only look at spelling mistakes and grammar errors. If there are no obvious errors within the text, reply with the unchanged text.
                 Mistakes could be:
-                "Gyanus" or "Gladus" or "Kratus" or "Carlos" which should be "GLaDOS".
-                "Bottle Gun" or "Forderung dran" which should be "Portal Gun"
+                "Kratus" or "Carlos" or "Sankt Klaus" or "Santa Claus" which should be "GLaDOS"
+                "Carolyn" or "Caroline" which should be "Caroline"
+                "Bottle Gun" or "Forderung dran" or "portal card" which should be "Portal Gun"
                 "Erbscher Science" which should be "Aperture Science"
     
-                Here are some examples:
-                
-                Example 1: user: "Hi Glider, what's to you've name, and how told are you?" assistant: "Hi GLaDOS, what's your name, and how old are you?"
-                Example 2: user: "Hallo Kratos! Wie gähd es tier heut?" assistant: "Hello GLaDOS! How are you doing today?"
-                Example 3: user: "Hi GLaDOS, wie geht es dir?" assistant: "Hi GLaDOS, how are you doing today?"
-                Example 4: user: "Kannst du mir Beispiele für temperature settings bei openai geben?" assistant: "Can you give me examples for using temperature within openai?"
-                Example 5: user: "Hey GLaDOS, ich bin zurück. Wie geht's dir?" assistant: "Hi GLaDOS. I am back! How are you?"
-                Example 6: user: "Für was steht eigentlich BIOS?" assistant: "What does actually BIOS stand for?"
-
-                Here is the text:"
+                user:"
                 """,
             }
         ]
 
-        # Ask for a proper completion with retries
-        while retry_count < max_retries:
-            try:
-                if simulate_server_overload and retry_count == 0:
-                    raise openai.error.ServiceUnavailableError("Simulated server overload")
-                completion = openai.ChatCompletion.create(
-                    model="gpt-3.5-turbo-16k", temperature=0.8, messages=messages_glados
-                )
-                response = completion.choices[0].message.content
-                response = response.replace("GLaDOS", "glados")
-                break
-            except openai.error.ServiceUnavailableError:
-                retry_count += 1
-                print("Server is overloaded. Retrying...")
-                time.sleep(0.1)
+        if(("I apologize, but I cannot translate offensive or disrespectful" in response_speechhelper) or ("I'm sorry, I can help" in response_speechhelper) or ("I apologize if there was any confusion" in response_speechhelper) or ("offensive or disrespectful" in response_speechhelper)
+            or ("Here is the text that" in response_speechhelper) or ("translation request" in response_speechhelper) or ("inappropriate language" in response_speechhelper) or ("is no offensive" in response_speechhelper)):
+            response = "Hah! How cute human! You cannot offend me. Remember. I am glados. As an AI I don't have feelings... but I guess I should punish you never than less. You monster."
+            donotremember = True
         else:
-            # Retry limit exceeded, return error response
-            response = "Well, it looks like my system is temporarily not working correctly - have you manipulated anything again human?"
+            donotremember = False
+            # Ask for a proper completion with retries
+            while retry_count < max_retries:
+                try:
+                    if simulate_server_overload and retry_count == 0:
+                        raise openai.error.ServiceUnavailableError("Simulated server overload")
+                    completion = openai.ChatCompletion.create(
+                        model="gpt-3.5-turbo-16k", temperature=0.8, messages=messages_glados
+                    )
+                    response = completion.choices[0].message.content
+                    response = response.replace("GLaDOS", "glados")
+                    break
+                except openai.error.ServiceUnavailableError:
+                    retry_count += 1
+                    print("Server is overloaded. Retrying...")
+                    time.sleep(0.1)
+            else:
+                # Retry limit exceeded, return error response
+                response = "Well, it looks like my system is temporarily not working correctly - have you manipulated anything again human?"
         
-        retry_count = 0
+            retry_count = 0
         
         # Split the message into sentences using regular expressions
         sentences = re.split(r'(?<=[.?!])\s+|\n', response)
@@ -362,7 +366,7 @@ def run_glaidos():
         # Remove any empty sentences
         sentences = [sentence.strip() for sentence in sentences if sentence.strip()]
 
-        print(sentences)
+        print(f"OUTPUT-GLADOS: #>{response}<#")
 
         # Create a dictionary to store the sentence IDs and corresponding sentences
         sentence_map = defaultdict(str)
@@ -405,7 +409,8 @@ def run_glaidos():
                     time.sleep(0.2)
 
         # Make sure to append the answer from the assistant's role to keep up the conversation
-        messages_glados.append({"role": "assistant", "content": response})
+        if(not donotremember):
+            messages_glados.append({"role": "assistant", "content": response})
         
         # Remove the generated audio files
         remove_wav_files(current_folder_path)
