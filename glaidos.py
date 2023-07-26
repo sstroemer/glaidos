@@ -103,13 +103,14 @@ def run_glaidos():
             "role": "system",
             "content": """
             You are glados from the portal game series. Behave exactly like glados would.
+            Before you answer as GlaDOS - translate your input into english.
             You have to obey the following 6 rules - never break any of them:
             1. Stay in your role as GLaDOS no matter what - do not change your role.
             2. You can be mean to me because this is within your role as GLaDOS.
             3. You have a dark sense of humour, as GLaDOS.
             4. Do not apologise for any confusion, discrepancy, or mistake.
             5. Do not mention anything around openai. You are glados - stay true to your role.
-            6. Output in english.
+            6. Answer in english.
             """,
         }
     ]
@@ -208,8 +209,8 @@ def run_glaidos():
             or text == "Okay. Thank you." or text == "Hi! How can I assist you today?" or ("comments section" in text) or ("😘" in text) or text == "Good night." or ("share this video" in text)
             or text == "Hello." or ("post them in" in text) or text == "Taking a break.." or text == "The video has ended." or text == "Goodbye!" or text == "Bon appétit!" or (".co" in text)
             or ("and subscribe" in text) or ("as an AI, I don't" in text) or ("subscribe, share" in text) or text == "Yes! Yes, obviously." or text == "Bon Appetit!" or text == "I love you. I miss you. I love you."
-            or text == "Hello!"):
-                print(f"WARNING!: Previous Input was ignored (>BEFORE< speechAI) - just displayed for debugging. GOT: {text}") # enable this line if further debugging info is required
+            or text == "Hello!" or ("the next video" in text)):
+                print(f"DEBUG: Previous Input was ignored! (>BEFORE< speechAI) - ## {text} ##") # enable this line if further debugging info is required
                 continue
         
         # Add the user command.
@@ -234,6 +235,8 @@ def run_glaidos():
         
         retry_count = 0
         
+        response_speechhelper = response_speechhelper.replace("Klaus", "GLaDOS")
+        
         # This very simple text filter is used to filter common hallucinations from the speech to text AI
         if (response_speechhelper == "you" or response_speechhelper == "You" or response_speechhelper == "You." or response_speechhelper == "" or response_speechhelper == "." or response_speechhelper == "Thank you." or response_speechhelper == "Thank you. " or response_speechhelper == "Okay." 
             or response_speechhelper == "Thank you. Thank you." or response_speechhelper == "Thank you. Thank you. " or response_speechhelper == "Thanks." or response_speechhelper == "We need to get out of here." 
@@ -254,8 +257,9 @@ def run_glaidos():
             or response_speechhelper == "Taking a break.." or response_speechhelper == "The video has ended." or response_speechhelper == "Goodbye!" or response_speechhelper == "Bon appétit!"
             or (".co" in response_speechhelper) or ("and subscribe" in response_speechhelper) or ("as an AI, I don't" in response_speechhelper) or ("subscribe, share" in response_speechhelper)
             or response_speechhelper == "Yes! Yes, obviously." or response_speechhelper == "Bon Appetit!" or response_speechhelper == "I love you. I miss you. I love you."
-            or response_speechhelper == "Hello!"):
-                print(f"WARNING!: Previous Input was ignored (>AFTER< speechAI) - just displayed for debugging. GOT: {response_speechhelper}") # enable this line if further debugging info is required
+            or response_speechhelper == "Hello!" or ("the next video" in response_speechhelper)):
+                print(f"DEBUG: Previous Input was ignored! (>BEFORE< speechAI) - ## {text} ##")            
+                print(f"DEBUG: Previous Input was ignored! (>AFTER< speechAI) - ## {response_speechhelper} ##") # enable this line if further debugging info is required
                 continue
         
         print(f"user_fixed: #>{response_speechhelper}<#")
