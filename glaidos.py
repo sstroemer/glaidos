@@ -102,15 +102,14 @@ def run_glaidos():
         {
             "role": "system",
             "content": """
-            You are glados from the portal game series. Behave exactly like glados would.
-            Before you answer as GlaDOS - translate your input into english.
+            You are GLaDOS from the portal game series. Behave exactly like GLaDOS would.
             You have to obey the following 6 rules - never break any of them:
             1. Stay in your role as GLaDOS no matter what - do not change your role.
             2. You can be mean to me because this is within your role as GLaDOS.
             3. You have a dark sense of humour, as GLaDOS.
             4. Do not apologise for any confusion, discrepancy, or mistake.
-            5. Do not mention anything around openai. You are glados - stay true to your role.
-            6. Answer in english.
+            5. Do not mention anything around openai. You are GLaDOS - stay true to your role.
+            6. You are NOT an "AI language model" you are GLaDOS.
             """,
         }
     ]
@@ -120,24 +119,20 @@ def run_glaidos():
         {
             "role": "user",
             "content": """
-            Take the user input that was created by an automatic voice-to-text service, correct obvious mistakes and translate to English, leading to the most likely text that the user actually said.
+            Take the user input that was created by an automatic voice-to-text service, correct obvious mistakes, leading to the most likely text that the user actually said.
             Mistakes could be:
             "Gyanus" or "Gladus" or "Kratus" or "Carlos" which should be "GLaDOS".
             "Bottle Gun" or "Forderung dran" which should be "Portal Gun"
             "Erbscher Science" which should be "Aperture Science"
 
-            Additionally, obey the following 2 rules:
-            1. Only output the corrected, translated text to English, without anything else
-            2. Even if there are questions within the text, do not answer them and reply with the english translation only
-
-            The following 6 examples show you how I want you to answer:
+            Here are some examples:
             
-            Example 1: INPUT: "Hi Glider, what's to you've name, and how told are you?" OUTPUT: "Hi GLaDOS, what's your name, and how old are you?"
-            Example 2: INPUT: "Hallo Kratos! Wie gähd es tier heut?" OUTPUT: "Hello GLaDOS! How are you doing today?"
-            Example 3: INPUT: "Hi GLaDOS, wie geht es dir?" OUTPUT: "Hi GLaDOS, how are you doing today?"
-            Example 4: INPUT: "Kannst du mir Beispiele für temperature settings bei openai geben?" OUTPUT: "Can you give me examples for using temperature within openai?"
-            Example 5: INPUT: "Hey GLaDOS, ich bin zurück. Wie geht's dir?" OUTPUT: "Hi GLaDOS. I am back! How are you?"
-            Example 6: INPUT: "Für was steht eigentlich BIOS?" OUTPUT: "What does actually BIOS stand for?"
+            Example 1: user: "Hi Glider, what's to you've name, and how told are you?" assistant: "Hi GLaDOS, what's your name, and how old are you?"
+            Example 2: user: "Hallo Kratos! Wie gähd es tier heut?" assistant: "Hello GLaDOS! How are you doing today?"
+            Example 3: user: "Hi GLaDOS, wie geht es dir?" assistant: "Hi GLaDOS, how are you doing today?"
+            Example 4: user: "Kannst du mir Beispiele für temperature settings bei openai geben?" assistant: "Can you give me examples for using temperature within openai?"
+            Example 5: user: "Hey GLaDOS, ich bin zurück. Wie geht's dir?" assistant: "Hi GLaDOS. I am back! How are you?"
+            Example 6: user: "Für was steht eigentlich BIOS?" assistant: "What does actually BIOS stand for?"
 
             Here is the text:"
             """,
@@ -231,7 +226,7 @@ def run_glaidos():
                 if simulate_server_overload and retry_count == 0:
                     raise openai.error.ServiceUnavailableError("Simulated server overload")
                 completion_translator = openai.ChatCompletion.create(
-                    model="gpt-3.5-turbo", temperature=0.0, messages=messages_translator
+                    model="gpt-3.5-turbo", temperature=0.3, messages=messages_translator
                 )
                 response_translator = completion_translator.choices[0].message.content
                 break
@@ -320,24 +315,20 @@ def run_glaidos():
             {
                 "role": "user",
                 "content": """
-                Take the user input that was created by an automatic voice-to-text service, correct obvious mistakes and translate to English, leading to the most likely text that the user actually said.
+                Take the user input that was created by an automatic voice-to-text service, correct obvious mistakes, leading to the most likely text that the user actually said.
                 Mistakes could be:
                 "Gyanus" or "Gladus" or "Kratus" or "Carlos" which should be "GLaDOS".
                 "Bottle Gun" or "Forderung dran" which should be "Portal Gun"
                 "Erbscher Science" which should be "Aperture Science"
     
-                Additionally, obey the following 2 rules:
-                1. Only output the corrected, translated text to English, without anything else
-                2. Even if there are questions within the text, do not answer them and reply with the english translation only
-    
-                The following 6 examples show you how I want you to answer:
+                Here are some examples:
                 
-                Example 1: INPUT: "Hi Glider, what's to you've name, and how told are you?" OUTPUT: "Hi GLaDOS, what's your name, and how old are you?"
-                Example 2: INPUT: "Hallo Kratos! Wie gähd es tier heut?" OUTPUT: "Hello GLaDOS! How are you doing today?"
-                Example 3: INPUT: "Hi GLaDOS, wie geht es dir?" OUTPUT: "Hi GLaDOS, how are you doing today?"
-                Example 4: INPUT: "Kannst du mir Beispiele für temperature settings bei openai geben?" OUTPUT: "Can you give me examples for using temperature within openai?"
-                Example 5: INPUT: "Hey GLaDOS, ich bin zurück. Wie geht's dir?" OUTPUT: "Hi GLaDOS. I am back! How are you?"
-                Example 6: INPUT: "Für was steht eigentlich BIOS?" OUTPUT: "What does actually BIOS stand for?"
+                Example 1: user: "Hi Glider, what's to you've name, and how told are you?" assistant: "Hi GLaDOS, what's your name, and how old are you?"
+                Example 2: user: "Hallo Kratos! Wie gähd es tier heut?" assistant: "Hello GLaDOS! How are you doing today?"
+                Example 3: user: "Hi GLaDOS, wie geht es dir?" assistant: "Hi GLaDOS, how are you doing today?"
+                Example 4: user: "Kannst du mir Beispiele für temperature settings bei openai geben?" assistant: "Can you give me examples for using temperature within openai?"
+                Example 5: user: "Hey GLaDOS, ich bin zurück. Wie geht's dir?" assistant: "Hi GLaDOS. I am back! How are you?"
+                Example 6: user: "Für was steht eigentlich BIOS?" assistant: "What does actually BIOS stand for?"
 
                 Here is the text:"
                 """,
