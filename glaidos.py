@@ -304,6 +304,7 @@ def run_glaidos():
                 continue
         
         response_speechhelper = response_speechhelper.replace("Klaus", "GLaDOS")
+        response_speechhelper = response_speechhelper.replace("Cleanders" , "GLaDOS")
         
         print(f"INPUT-GLADOS: #>{response_speechhelper}<#")
         
