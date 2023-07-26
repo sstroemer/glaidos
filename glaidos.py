@@ -269,6 +269,11 @@ def run_glaidos():
             
         retry_count = 0
     
+        response_translator = response_translator.replace("Carlos", "GLaDOS")
+        response_translator = response_translator.replace("Clarus" , "GLaDOS")
+        response_translator = response_translator.replace("Pia", "GLaDOS")
+        response_translator = response_translator.replace("Clarus", "GLaDOS")
+    
         # Add the user command.
         messages_speechhelper.append({"role": "user", "content": (response_translator+"\"")})
     
@@ -287,11 +292,6 @@ def run_glaidos():
         ]
     
         print(f"DEBUG: TRANSLATOR---- #>{response_translator}<#")
-    
-        response_translator = response_translator.replace("Carlos", "GLaDOS")
-        response_translator = response_translator.replace("Clarus" , "GLaDOS")
-        response_translator = response_translator.replace("Pia", "GLaDOS")
-        response_translator = response_translator.replace("Clarus", "GLaDOS")
     
         while retry_count < max_retries:
             try:
