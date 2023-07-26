@@ -209,7 +209,7 @@ def run_glaidos():
             or text == "Okay. Thank you." or text == "Hi! How can I assist you today?" or ("comments section" in text) or ("😘" in text) or text == "Good night." or ("share this video" in text)
             or text == "Hello." or ("post them in" in text) or text == "Taking a break.." or text == "The video has ended." or text == "Goodbye!" or text == "Bon appétit!" or (".co" in text)
             or ("and subscribe" in text) or ("as an AI, I don't" in text) or ("subscribe, share" in text) or text == "Yes! Yes, obviously." or text == "Bon Appetit!" or text == "I love you. I miss you. I love you."
-            or text == "Hello!" or ("the next video" in text)):
+            or text == "Hello!" or ("the next video" in text) or ("can use applications like this" in text)):
                 print(f"DEBUG: Previous Input was ignored! (>BEFORE< speechAI) - ## {text} ##") # enable this line if further debugging info is required
                 continue
         
@@ -257,7 +257,7 @@ def run_glaidos():
             or response_speechhelper == "Taking a break.." or response_speechhelper == "The video has ended." or response_speechhelper == "Goodbye!" or response_speechhelper == "Bon appétit!"
             or (".co" in response_speechhelper) or ("and subscribe" in response_speechhelper) or ("as an AI, I don't" in response_speechhelper) or ("subscribe, share" in response_speechhelper)
             or response_speechhelper == "Yes! Yes, obviously." or response_speechhelper == "Bon Appetit!" or response_speechhelper == "I love you. I miss you. I love you."
-            or response_speechhelper == "Hello!" or ("the next video" in response_speechhelper)):
+            or response_speechhelper == "Hello!" or ("the next video" in response_speechhelper) or ("can use applications like this" in response_speechhelper)):
                 print(f"DEBUG: Previous Input was ignored! (>BEFORE< speechAI) - ## {text} ##")            
                 print(f"DEBUG: Previous Input was ignored! (>AFTER< speechAI) - ## {response_speechhelper} ##") # enable this line if further debugging info is required
                 continue
