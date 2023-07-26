@@ -24,6 +24,32 @@ first_sentence_playing = True
 
 donotremember = False
 
+selected_microphone = None
+
+def get_available_microphones():
+    mic_list = sr.Microphone.list_microphone_names()
+    for i, mic_name in enumerate(mic_list):
+        print(f"{i+1}. {mic_name}")
+    return mic_list
+
+def select_microphone():
+    mic_list = get_available_microphones()
+    if len(mic_list) == 0:
+        print("No microphones found. Please make sure a microphone is connected.")
+        return None
+    
+    while True:
+        try:
+            selected_index = int(input("Select the microphone (enter the number): ")) - 1
+            if 0 <= selected_index < len(mic_list):
+                break
+            else:
+                print("Invalid selection. Please enter a valid number.")
+        except ValueError:
+            print("Invalid input. Please enter a valid number.")
+            
+    return selected_index
+
 def load_environment():
 	try:
 		with open(".env", 'r') as file:
@@ -160,18 +186,18 @@ def run_glaidos():
     print("<< launching glAIdos and testing noise levels >>")
     with suppress_stdout():
         recognizer = sr.Recognizer()
-        microphone = sr.Microphone(device_index = None, sample_rate = 16000, chunk_size = 1024)
+        microphone = sr.Microphone(device_index = selected_microphone, sample_rate = 16000, chunk_size = 1024)
 
-        recognizer.energy_threshold = 4700 #increase this number if transscription is cut off. Decrease if the end of a message is not correctly detected. Try steps in size of 100. Default (which worked) is 4700
+        recognizer.energy_threshold = 1000 #increase this number if transscription is cut off. Decrease if the end of a message is not correctly detected. Try steps in size of 100. Default (which worked) is 4700
         recognizer.dynamic_energy_threshold = True
         recognizer.dynamic_energy_adjustment_damping = 0.15 # 0.15 is default
         recognizer.dynamic_energy_adjustment_ratio = 1.5 # 1.5 is default
         recognizer.pause_threshold = 0.8 # 0.8 is default
-        recognizer.operation_timeout = 0.5 # default is None - now set to 0.5 seconds
+        recognizer.operation_timeout = None # default is None - now set to 0.5 seconds
         
         # Detect noise levels.
         #with microphone as source:
-        #    recognizer.adjust_for_ambient_noise(source, duration=5)
+            #recognizer.adjust_for_ambient_noise(source, duration=5)
         
     while True:
         #recognizer.energy_threshold = 4700 #increase this number if transscription is cut off. Decrease if the end of a message is not correctly detected. Try steps in size of 100. Default (which worked) is 4700
@@ -179,7 +205,7 @@ def run_glaidos():
         
         # Detect noise levels.
         #with microphone as source:
-            #recognizer.adjust_for_ambient_noise(source, duration=2)
+            #recognizer.adjust_for_ambient_noise(source, duration=1)
             
         print("<< glAIdos is waiting for input >>")
 
@@ -214,7 +240,8 @@ def run_glaidos():
             or text == "Okay. Thank you." or text == "Hi! How can I assist you today?" or ("comments section" in text) or ("😘" in text) or text == "Good night." or ("share this video" in text)
             or text == "Hello." or ("post them in" in text) or text == "Taking a break.." or text == "The video has ended." or text == "Goodbye!" or text == "Bon appétit!" or (".co" in text)
             or ("and subscribe" in text) or ("as an AI, I don't" in text) or ("subscribe, share" in text) or text == "Yes! Yes, obviously." or text == "Bon Appetit!" or text == "I love you. I miss you. I love you."
-            or text == "Hello!" or ("the next video" in text) or ("can use applications like this" in text) or text == "Wow." or text == "Thank you. Bye."):
+            or text == "Hello!" or ("the next video" in text) or ("can use applications like this" in text) or text == "Wow." or text == "Thank you. Bye." or ("la la" in text) or ("I hope you enjoyed it" in text)
+            or ("couple of videos" in text)):
                 print(f"DEBUG: Previous Input was ignored! (>BEFORE< speechAI) - ## {text} ##") # enable this line if further debugging info is required
                 continue
         
@@ -259,6 +286,8 @@ def run_glaidos():
     
         print(f"DEBUG: TRANSLATOR---- #>{response_translator}<#")
     
+        response_translator = response_translator.replace("Carlos", "GLaDOS")
+    
         while retry_count < max_retries:
             try:
                 if simulate_server_overload and retry_count == 0:
@@ -298,7 +327,8 @@ def run_glaidos():
             or response_speechhelper == "Taking a break.." or response_speechhelper == "The video has ended." or response_speechhelper == "Goodbye!" or response_speechhelper == "Bon appétit!"
             or (".co" in response_speechhelper) or ("and subscribe" in response_speechhelper) or ("as an AI, I don't" in response_speechhelper) or ("subscribe, share" in response_speechhelper)
             or response_speechhelper == "Yes! Yes, obviously." or response_speechhelper == "Bon Appetit!" or response_speechhelper == "I love you. I miss you. I love you."
-            or response_speechhelper == "Hello!" or ("the next video" in response_speechhelper) or ("can use applications like this" in response_speechhelper) or response_speechhelper == "Wow." or response_speechhelper == "Thank you. Bye."):
+            or response_speechhelper == "Hello!" or ("the next video" in response_speechhelper) or ("can use applications like this" in response_speechhelper) or response_speechhelper == "Wow." or response_speechhelper == "Thank you. Bye." or ("la la" in response_speechhelper)
+            or ("I hope you enjoyed it" in response_speechhelper) or ("couple of videos" in response_speechhelper) or response_speechhelper == "Glad."):
                 print(f"DEBUG: Previous Input was ignored! (>BEFORE< speechAI) - ## {text} ##")            
                 print(f"DEBUG: Previous Input was ignored! (>AFTER< speechAI) - ## {response_speechhelper} ##") # enable this line if further debugging info is required
                 continue
@@ -461,7 +491,12 @@ if __name__ == "__main__":
     # Load models
     glados = torch.jit.load('models/glados.pt')
     vocoder = torch.jit.load('models/vocoder-gpu.pt', map_location=device_vocoder)
-
+    
+    # Select the microphone
+    selected_microphone = select_microphone()
+    if selected_microphone is None:
+        sys.exit("No Mic found!")
+    
     run_glaidos()
     
     
