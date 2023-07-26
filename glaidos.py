@@ -118,7 +118,7 @@ def run_glaidos():
     # Prepare messages, first: "priming" the system role.
     messages_speechhelper = [
         {
-            "role": "system",
+            "role": "user",
             "content": """
             Take the user input that was created by an automatic voice-to-text service, correct obvious mistakes and translate to English, leading to the most likely text that the user actually said.
             Mistakes could be:
@@ -126,25 +126,35 @@ def run_glaidos():
             "Bottle Gun" or "Forderung dran" which should be "Portal Gun"
             "Erbscher Science" which should be "Aperture Science"
 
-            Additionally, obey the following 3 rules:
+            Additionally, obey the following 2 rules:
             1. Only output the corrected, translated text to English, without anything else
-            2. If you detect emoticons like "ღ'ᴗ'ღ" or "😘" answer with "EMPTY"
-            3. Even if there are questions within the text, do not answer them and reply with the english translation only
+            2. Even if there are questions within the text, do not answer them and reply with the english translation only
 
-            The following 9 examples show you how I want you to answer:
+            The following 6 examples show you how I want you to answer:
             
             Example 1: INPUT: "Hi Glider, what's to you've name, and how told are you?" OUTPUT: "Hi GLaDOS, what's your name, and how old are you?"
             Example 2: INPUT: "Hallo Kratos! Wie gähd es tier heut?" OUTPUT: "Hello GLaDOS! How are you doing today?"
-            Example 3: INPUT: "绝对不是" OUTPUT: "EMPTY"
-            Example 4: INPUT: "Hi GLaDOS, wie geht es dir?" OUTPUT: "Hi GLaDOS, how are you doing today?"
-            Example 5: INPUT: "fhsdopufhopadjpfikshgdsfgjfohfigj" OUTPUT: "EMPTY"
-            Example 6: INPUT: "Kannst du mir Beispiele für temperature settings bei openai geben?" OUTPUT: "Can you give me examples for using temperature within openai?"
-            Example 7: INPUT: " ٩(⊙‿⊙)۶" OUTPUT: "EMPTY"
-            Example 8: INPUT: "Hey GLaDOS, ich bin zurück. Wie geht's dir?" OUTPUT: "Hi GLaDOS. I am back! How are you?"
-            Example 9: INPUT: "Für was steht eigentlich BIOS?" OUTPUT: "What does actually BIOS stand for?"
+            Example 3: INPUT: "Hi GLaDOS, wie geht es dir?" OUTPUT: "Hi GLaDOS, how are you doing today?"
+            Example 4: INPUT: "Kannst du mir Beispiele für temperature settings bei openai geben?" OUTPUT: "Can you give me examples for using temperature within openai?"
+            Example 5: INPUT: "Hey GLaDOS, ich bin zurück. Wie geht's dir?" OUTPUT: "Hi GLaDOS. I am back! How are you?"
+            Example 6: INPUT: "Für was steht eigentlich BIOS?" OUTPUT: "What does actually BIOS stand for?"
+
+            Here is the text:"
             """,
         }
     ]
+    
+    # Prepare messages, first: "priming" the system role.
+    messages_translator = [
+        {
+            "role": "user",
+            "content": """
+            You are a text translator. Translate the following text to english.
+            Here is the text: "
+            """,
+        }
+    ]
+    
     
     # Load environment variables
     load_environment()
@@ -188,8 +198,8 @@ def run_glaidos():
         # Transcribe the audio using whisper. SpeechRecognition supports a lot of different ways (Google, Whisper API, ...).
         try:
             #text = recognizer.recognize_google(audio, language = "en-US").strip() #leaving this here if we want to switch to googles solution
-            #text = recognizer.recognize_whisper(audio_data=audio, model="small").strip()
-            text = recognizer.recognize_whisper_api(audio_data = audio, model = "whisper-1", api_key = openai.api_key)
+            text = recognizer.recognize_whisper(audio_data=audio, model="medium").strip()
+            #text = recognizer.recognize_whisper_api(audio_data = audio, model = "whisper-1", api_key = openai.api_key)
         except Exception as e:
             print("\nIgnoring garbage data. - Have you setup the openai API key correctly? If yes - have you installed python module >soundfile<?\n")
             text = ""
@@ -209,19 +219,52 @@ def run_glaidos():
             or text == "Okay. Thank you." or text == "Hi! How can I assist you today?" or ("comments section" in text) or ("😘" in text) or text == "Good night." or ("share this video" in text)
             or text == "Hello." or ("post them in" in text) or text == "Taking a break.." or text == "The video has ended." or text == "Goodbye!" or text == "Bon appétit!" or (".co" in text)
             or ("and subscribe" in text) or ("as an AI, I don't" in text) or ("subscribe, share" in text) or text == "Yes! Yes, obviously." or text == "Bon Appetit!" or text == "I love you. I miss you. I love you."
-            or text == "Hello!" or ("the next video" in text) or ("can use applications like this" in text)):
+            or text == "Hello!" or ("the next video" in text) or ("can use applications like this" in text) or text == "Wow."):
                 print(f"DEBUG: Previous Input was ignored! (>BEFORE< speechAI) - ## {text} ##") # enable this line if further debugging info is required
                 continue
         
         # Add the user command.
-        messages_speechhelper.append({"role": "user", "content": text})
-        
+        messages_translator.append({"role": "user", "content": (text+"\"")})
+    
+        while retry_count < max_retries:
+            try:
+                if simulate_server_overload and retry_count == 0:
+                    raise openai.error.ServiceUnavailableError("Simulated server overload")
+                completion_translator = openai.ChatCompletion.create(
+                    model="gpt-3.5-turbo", temperature=0.0, messages=messages_translator
+                )
+                response_translator = completion_translator.choices[0].message.content
+                break
+            except openai.error.ServiceUnavailableError:
+                retry_count += 1
+                print("Server is overloaded. Retrying...")
+                time.sleep(0.1)
+        else:
+            # Retry limit exceeded, return error response
+            response_translator = ""
+            
+        retry_count = 0
+    
+        # Add the user command.
+        messages_speechhelper.append({"role": "user", "content": (response_translator+"\"")})
+    
+        # Reset translator.
+        messages_translator = [
+            {
+                "role": "user",
+                "content": """
+                You are a text translator. Translate the following text to english.
+                Here is the text: "
+                """,
+            }
+        ]
+    
         while retry_count < max_retries:
             try:
                 if simulate_server_overload and retry_count == 0:
                     raise openai.error.ServiceUnavailableError("Simulated server overload")
                 completion_speechhelper = openai.ChatCompletion.create(
-                    model="gpt-3.5-turbo-16k", temperature=0.8, messages=messages_speechhelper
+                    model="gpt-3.5-turbo", temperature=0.8, messages=messages_speechhelper
                 )
                 response_speechhelper = completion_speechhelper.choices[0].message.content
                 break
@@ -234,8 +277,6 @@ def run_glaidos():
             response_speechhelper = ""
         
         retry_count = 0
-        
-        response_speechhelper = response_speechhelper.replace("Klaus", "GLaDOS")
         
         # This very simple text filter is used to filter common hallucinations from the speech to text AI
         if (response_speechhelper == "you" or response_speechhelper == "You" or response_speechhelper == "You." or response_speechhelper == "" or response_speechhelper == "." or response_speechhelper == "Thank you." or response_speechhelper == "Thank you. " or response_speechhelper == "Okay." 
@@ -257,10 +298,12 @@ def run_glaidos():
             or response_speechhelper == "Taking a break.." or response_speechhelper == "The video has ended." or response_speechhelper == "Goodbye!" or response_speechhelper == "Bon appétit!"
             or (".co" in response_speechhelper) or ("and subscribe" in response_speechhelper) or ("as an AI, I don't" in response_speechhelper) or ("subscribe, share" in response_speechhelper)
             or response_speechhelper == "Yes! Yes, obviously." or response_speechhelper == "Bon Appetit!" or response_speechhelper == "I love you. I miss you. I love you."
-            or response_speechhelper == "Hello!" or ("the next video" in response_speechhelper) or ("can use applications like this" in response_speechhelper)):
+            or response_speechhelper == "Hello!" or ("the next video" in response_speechhelper) or ("can use applications like this" in response_speechhelper) or response_speechhelper == "Wow."):
                 print(f"DEBUG: Previous Input was ignored! (>BEFORE< speechAI) - ## {text} ##")            
                 print(f"DEBUG: Previous Input was ignored! (>AFTER< speechAI) - ## {response_speechhelper} ##") # enable this line if further debugging info is required
                 continue
+        
+        response_speechhelper = response_speechhelper.replace("Klaus", "GLaDOS")
         
         print(f"user_fixed: #>{response_speechhelper}<#")
         
@@ -272,8 +315,34 @@ def run_glaidos():
         # Add the user command.
         messages_glados.append({"role": "user", "content": response_speechhelper})
 
-        # Make sure to append the answer from the assistant's role to keep up the conversation
-        messages_speechhelper.append({"role": "assistant", "content": response_speechhelper})
+        # Reset speechhelper.
+        messages_speechhelper = [
+            {
+                "role": "user",
+                "content": """
+                Take the user input that was created by an automatic voice-to-text service, correct obvious mistakes and translate to English, leading to the most likely text that the user actually said.
+                Mistakes could be:
+                "Gyanus" or "Gladus" or "Kratus" or "Carlos" which should be "GLaDOS".
+                "Bottle Gun" or "Forderung dran" which should be "Portal Gun"
+                "Erbscher Science" which should be "Aperture Science"
+    
+                Additionally, obey the following 2 rules:
+                1. Only output the corrected, translated text to English, without anything else
+                2. Even if there are questions within the text, do not answer them and reply with the english translation only
+    
+                The following 6 examples show you how I want you to answer:
+                
+                Example 1: INPUT: "Hi Glider, what's to you've name, and how told are you?" OUTPUT: "Hi GLaDOS, what's your name, and how old are you?"
+                Example 2: INPUT: "Hallo Kratos! Wie gähd es tier heut?" OUTPUT: "Hello GLaDOS! How are you doing today?"
+                Example 3: INPUT: "Hi GLaDOS, wie geht es dir?" OUTPUT: "Hi GLaDOS, how are you doing today?"
+                Example 4: INPUT: "Kannst du mir Beispiele für temperature settings bei openai geben?" OUTPUT: "Can you give me examples for using temperature within openai?"
+                Example 5: INPUT: "Hey GLaDOS, ich bin zurück. Wie geht's dir?" OUTPUT: "Hi GLaDOS. I am back! How are you?"
+                Example 6: INPUT: "Für was steht eigentlich BIOS?" OUTPUT: "What does actually BIOS stand for?"
+
+                Here is the text:"
+                """,
+            }
+        ]
 
         # Ask for a proper completion with retries
         while retry_count < max_retries:
@@ -397,4 +466,5 @@ if __name__ == "__main__":
     vocoder = torch.jit.load('models/vocoder-gpu.pt', map_location=device_vocoder)
 
     run_glaidos()
+    
     
