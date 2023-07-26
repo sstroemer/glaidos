@@ -147,8 +147,8 @@ def run_glaidos():
         {
             "role": "user",
             "content": """
-            Take the user input that was created by an automatic voice-to-text service and correct obvious mistakes, leading to the most likely text that the user actually said.
-            Do not change the meaning of the sentence. Only look at spelling mistakes and grammar errors. If there are no obvious errors within the text, reply with the unchanged text.
+            You are a text processor. Take the user input that was created by an automatic voice-to-text service and correct obvious mistakes, leading to the most likely text that the user actually said.
+            Do not change the meaning of the sentence. Only look at spelling mistakes and grammar errors. If there are no obvious errors within the text, reply with the unchanged text. Do not answer questions just reply with corrected text.
             Mistakes could be:
             "Kratus" or "Carlos" or "Sankt Klaus" or "Santa Claus" which should be "GLaDOS"
             "Carolyn" or "Caroline" which should be "Caroline"
@@ -167,7 +167,7 @@ def run_glaidos():
             "content": """
             You are a text translator. Translate the following text to english. Only answer with the translated text. Do not change the meaning of the sentence. Only translate. Fix common mistakes with the phrase "Portal Gun".
             Common mistakes are:
-            "Bottle Gun" or "Forderung dran" or "portal card" or "Portenkarten" or "Porten gang" which should be "Portal Gun"
+            "Bottle Gun" or "Forderung dran" or "portal card" or "Portenkarten" or "Porten gang" or "Porcupine" which should be "Portal Gun"
             
             user: "
             """,
@@ -193,7 +193,7 @@ def run_glaidos():
         recognizer.dynamic_energy_adjustment_damping = 0.15 # 0.15 is default
         recognizer.dynamic_energy_adjustment_ratio = 1.5 # 1.5 is default
         recognizer.pause_threshold = 0.8 # 0.8 is default
-        recognizer.operation_timeout = None # default is None - now set to 0.5 seconds
+        recognizer.operation_timeout = 1 # default is None - now set to 0.5 seconds
         
         # Detect noise levels.
         #with microphone as source:
@@ -214,11 +214,13 @@ def run_glaidos():
             with microphone as source:
                 audio = recognizer.listen(source, timeout = None, phrase_time_limit = 13, snowboy_configuration = None)
 
+        print("CAPTURED DATA - PROCESSING VIA WHISPER AI!")
+                
         # Transcribe the audio using whisper. SpeechRecognition supports a lot of different ways (Google, Whisper API, ...).
         try:
             #text = recognizer.recognize_google(audio, language = "en-US").strip() #leaving this here if we want to switch to googles solution
-            text = recognizer.recognize_whisper(audio_data=audio, model="medium").strip()
-            #text = recognizer.recognize_whisper_api(audio_data = audio, model = "whisper-1", api_key = openai.api_key)
+            #text = recognizer.recognize_whisper(audio_data=audio, model="medium").strip()
+            text = recognizer.recognize_whisper_api(audio_data = audio, model = "whisper-1", api_key = openai.api_key)
         except Exception as e:
             print("\nIgnoring garbage data. - Have you setup the openai API key correctly? If yes - have you installed python module >soundfile<?\n")
             text = ""
@@ -277,7 +279,7 @@ def run_glaidos():
                 "content": """
                 You are a text translator. Translate the following text to english. Only answer with the translated text. Do not change the meaning of the sentence. Only translate. Fix common mistakes with the phrase "Portal Gun".
                 Common mistakes are:
-                "Bottle Gun" or "Forderung dran" or "portal card" or "Portenkarten" or "Porten gang" which should be "Portal Gun"
+                "Bottle Gun" or "Forderung dran" or "portal card" or "Portenkarten" or "Porten gang" or "Porcupine" which should be "Portal Gun"
                 
                 user: "
                 """,
@@ -287,6 +289,9 @@ def run_glaidos():
         print(f"DEBUG: TRANSLATOR---- #>{response_translator}<#")
     
         response_translator = response_translator.replace("Carlos", "GLaDOS")
+        response_translator = response_translator.replace("Clarus" , "GLaDOS")
+        response_translator = response_translator.replace("Pia", "GLaDOS")
+        response_translator = response_translator.replace("Clarus", "GLaDOS")
     
         while retry_count < max_retries:
             try:
@@ -335,6 +340,7 @@ def run_glaidos():
         
         response_speechhelper = response_speechhelper.replace("Klaus", "GLaDOS")
         response_speechhelper = response_speechhelper.replace("Cleanders" , "GLaDOS")
+        response_speechhelper = response_speechhelper.replace("Clarus" , "GLaDOS")
         
         print(f"INPUT-GLADOS: #>{response_speechhelper}<#")
         
@@ -351,8 +357,8 @@ def run_glaidos():
             {
                 "role": "user",
                 "content": """
-                Take the user input that was created by an automatic voice-to-text service and correct obvious mistakes, leading to the most likely text that the user actually said.
-                Do not change the meaning of the sentence. Only look at spelling mistakes and grammar errors. If there are no obvious errors within the text, reply with the unchanged text.
+                You are a text processor. Take the user input that was created by an automatic voice-to-text service and correct obvious mistakes, leading to the most likely text that the user actually said.
+                Do not change the meaning of the sentence. Only look at spelling mistakes and grammar errors. If there are no obvious errors within the text, reply with the unchanged text. Do not answer questions just reply with corrected text.
                 Mistakes could be:
                 "Kratus" or "Carlos" or "Sankt Klaus" or "Santa Claus" which should be "GLaDOS"
                 "Carolyn" or "Caroline" which should be "Caroline"
