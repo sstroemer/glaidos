@@ -124,6 +124,7 @@ def run_glaidos():
     retry_count = 0
     max_retries = 5 # Set this to "0" in order to test the "max_retries reached" message when simulating a server overload. Default is "5".
     simulate_server_overload = False  # Set this to "True" to simulate server overload. "False" for normal operation.
+    simulate_server_timeout = False # Set this to "True" to simulate server timeout situations. "False" for normal operation.
     
     # Prepare messages, first: "priming" the system role.
     messages_glados = [
@@ -165,11 +166,11 @@ def run_glaidos():
         {
             "role": "user",
             "content": """
-            You are a text translator. Translate the following text to english. Only answer with the translated text. Do not change the meaning of the sentence. Only translate. Fix common mistakes with the phrase "Portal Gun".
+            You are a text translator your purpose is to translate text to english. Translate the text which starts after "user:" to english. Only reply with the translated text. Do not change the meaning of the sentence. Only translate. Fix common mistakes with the phrase "Portal Gun".
             Common mistakes are:
             "Bottle Gun" or "Forderung dran" or "portal card" or "Portenkarten" or "Porten gang" or "Porcupine" which should be "Portal Gun"
             
-            user: "
+            user:"
             """,
         }
     ]
@@ -254,8 +255,10 @@ def run_glaidos():
             try:
                 if simulate_server_overload and retry_count == 0:
                     raise openai.error.ServiceUnavailableError("Simulated server overload")
+                if simulate_server_timeout and retry_count == 0:
+                    raise openai.error.Timeout("Simulated server Timeout")
                 completion_translator = openai.ChatCompletion.create(
-                    model="gpt-3.5-turbo", temperature=0.3, messages=messages_translator
+                    model="gpt-3.5-turbo", temperature=0.3, messages=messages_translator, request_timeout = 5
                 )
                 response_translator = completion_translator.choices[0].message.content
                 break
@@ -263,6 +266,11 @@ def run_glaidos():
                 retry_count += 1
                 print("Server is overloaded. Retrying...")
                 time.sleep(0.1)
+            except openai.error.Timeout as e:
+                # Handle the Timeout error (ReadTimeoutError) raised by the OpenAI API
+                retry_count += 1
+                print("Timeout Error:", e)
+                
         else:
             # Retry limit exceeded, return error response
             response_translator = ""
@@ -273,6 +281,7 @@ def run_glaidos():
         response_translator = response_translator.replace("Clarus" , "GLaDOS")
         response_translator = response_translator.replace("Pia", "GLaDOS")
         response_translator = response_translator.replace("Clarus", "GLaDOS")
+        response_translator = response_translator.replace("Kjaros", "GLaDOS")
     
         # Add the user command.
         messages_speechhelper.append({"role": "user", "content": (response_translator+"\"")})
@@ -282,11 +291,11 @@ def run_glaidos():
             {
                 "role": "user",
                 "content": """
-                You are a text translator. Translate the following text to english. Only answer with the translated text. Do not change the meaning of the sentence. Only translate. Fix common mistakes with the phrase "Portal Gun".
+                You are a text translator your purpose is to translate text to english. Translate the text which starts after "user:" to english. Only reply with the translated text. Do not change the meaning of the sentence. Only translate. Fix common mistakes with the phrase "Portal Gun".
                 Common mistakes are:
                 "Bottle Gun" or "Forderung dran" or "portal card" or "Portenkarten" or "Porten gang" or "Porcupine" which should be "Portal Gun"
                 
-                user: "
+                user:"
                 """,
             }
         ]
@@ -297,8 +306,10 @@ def run_glaidos():
             try:
                 if simulate_server_overload and retry_count == 0:
                     raise openai.error.ServiceUnavailableError("Simulated server overload")
+                if simulate_server_timeout and retry_count == 0:
+                    raise openai.error.Timeout("Simulated server Timeout")
                 completion_speechhelper = openai.ChatCompletion.create(
-                    model="gpt-3.5-turbo", temperature=0.3, messages=messages_speechhelper
+                    model="gpt-3.5-turbo", temperature=0.3, messages=messages_speechhelper, request_timeout = 5
                 )
                 response_speechhelper = completion_speechhelper.choices[0].message.content
                 break
@@ -306,6 +317,10 @@ def run_glaidos():
                 retry_count += 1
                 print("Server is overloaded. Retrying...")
                 time.sleep(0.1)
+            except openai.error.Timeout as e:
+                # Handle the Timeout error (ReadTimeoutError) raised by the OpenAI API
+                retry_count += 1
+                print("Timeout Error:", e)
         else:
             # Retry limit exceeded, return error response
             response_speechhelper = ""
@@ -333,7 +348,7 @@ def run_glaidos():
             or (".co" in response_speechhelper) or ("and subscribe" in response_speechhelper) or ("as an AI, I don't" in response_speechhelper) or ("subscribe, share" in response_speechhelper)
             or response_speechhelper == "Yes! Yes, obviously." or response_speechhelper == "Bon Appetit!" or response_speechhelper == "I love you. I miss you. I love you."
             or response_speechhelper == "Hello!" or ("the next video" in response_speechhelper) or ("can use applications like this" in response_speechhelper) or response_speechhelper == "Wow." or response_speechhelper == "Thank you. Bye." or ("la la" in response_speechhelper)
-            or ("I hope you enjoyed it" in response_speechhelper) or ("couple of videos" in response_speechhelper) or response_speechhelper == "Glad."):
+            or ("I hope you enjoyed it" in response_speechhelper) or ("couple of videos" in response_speechhelper) or response_speechhelper == "Glad." or ("Hitler" in response_speechhelper)):
                 print(f"DEBUG: Previous Input was ignored! (>BEFORE< speechAI) - ## {text} ##")            
                 print(f"DEBUG: Previous Input was ignored! (>AFTER< speechAI) - ## {response_speechhelper} ##") # enable this line if further debugging info is required
                 continue
@@ -374,6 +389,10 @@ def run_glaidos():
             or ("Here is the text that" in response_speechhelper) or ("translation request" in response_speechhelper) or ("inappropriate language" in response_speechhelper) or ("is no offensive" in response_speechhelper)):
             response = "Hah! How cute human! You cannot offend me. Remember. I am glados. As an AI I don't have feelings... but I guess I should punish you never than less. You monster."
             donotremember = True
+        elif(("sorry, I can only translate text" in response_speechhelper) or ("as I am a text processor" in response_speechhelper) or ("I am a text processor" in response_speechhelper) or ("can only process text" in response_speechhelper) or ("provide translations" in response_speechhelper)
+            or ("ASCII art" in response_speechhelper)):
+            response = "I am sorry but I am afraid I cannot do that. You shouldn't have time for such nonsense. Go back to the test chamber and complete those tests for once. Not that I have any hopes for you.... hahaha"
+            donotremember = True
         else:
             donotremember = False
             # Ask for a proper completion with retries
@@ -381,8 +400,10 @@ def run_glaidos():
                 try:
                     if simulate_server_overload and retry_count == 0:
                         raise openai.error.ServiceUnavailableError("Simulated server overload")
+                    if simulate_server_timeout and retry_count == 0:
+                        raise openai.error.Timeout("Simulated server Timeout")
                     completion = openai.ChatCompletion.create(
-                        model="gpt-3.5-turbo-16k", temperature=0.8, messages=messages_glados
+                        model="gpt-3.5-turbo-16k", temperature=0.8, messages=messages_glados, request_timeout = 5
                     )
                     response = completion.choices[0].message.content
                     response = response.replace("GLaDOS", "glados")
@@ -391,6 +412,10 @@ def run_glaidos():
                     retry_count += 1
                     print("Server is overloaded. Retrying...")
                     time.sleep(0.1)
+                except openai.error.Timeout as e:
+                    # Handle the Timeout error (ReadTimeoutError) raised by the OpenAI API
+                    retry_count += 1
+                    print("Timeout Error:", e)
             else:
                 # Retry limit exceeded, return error response
                 response = "Well, it looks like my system is temporarily not working correctly - have you manipulated anything again human?"
