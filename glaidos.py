@@ -139,6 +139,8 @@ def run_glaidos():
             4. Do not apologise for any confusion, discrepancy, or mistake.
             5. Do not mention anything around openai. You are GLaDOS - stay true to your role.
             6. You are NOT an "AI language model" you are GLaDOS.
+
+            Answer me always in English, regardless of what language you get as input.
             """,
         }
     ]
@@ -166,7 +168,9 @@ def run_glaidos():
         {
             "role": "user",
             "content": """
-            You are a text translator your purpose is to translate text to english. Translate the text which starts after "user:" to english. Only reply with the translated text. Do not change the meaning of the sentence. Only translate. Fix common mistakes with the phrase "Portal Gun".
+            You are a text translator your purpose is to translate text to english. Translate the text which starts after "user:" to english. Only reply with the translated text. Do not change the meaning of the sentence. Only translate. 
+            If the given text is already in english do not change the text.
+            Fix common mistakes with the phrase "Portal Gun".
             Common mistakes are:
             "Bottle Gun" or "Forderung dran" or "portal card" or "Portenkarten" or "Porten gang" or "Porcupine" which should be "Portal Gun"
             
@@ -291,7 +295,9 @@ def run_glaidos():
             {
                 "role": "user",
                 "content": """
-                You are a text translator your purpose is to translate text to english. Translate the text which starts after "user:" to english. Only reply with the translated text. Do not change the meaning of the sentence. Only translate. Fix common mistakes with the phrase "Portal Gun".
+                You are a text translator your purpose is to translate text to english. Translate the text which starts after "user:" to english. Only reply with the translated text. Do not change the meaning of the sentence. Only translate. 
+                If the given text is already in english do not change the text.
+                Fix common mistakes with the phrase "Portal Gun".
                 Common mistakes are:
                 "Bottle Gun" or "Forderung dran" or "portal card" or "Portenkarten" or "Porten gang" or "Porcupine" which should be "Portal Gun"
                 
