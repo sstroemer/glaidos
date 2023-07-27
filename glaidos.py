@@ -283,6 +283,7 @@ def run_glaidos():
             
         retry_count = 0
     
+        response_translator = response_translator.replace("Carver", "cable")    
         response_translator = response_translator.replace("Carlos", "GLaDOS")
         response_translator = response_translator.replace("Clarus" , "GLaDOS")
         response_translator = response_translator.replace("Pia", "GLaDOS")
@@ -367,6 +368,7 @@ def run_glaidos():
                 print(f"DEBUG: Previous Input was ignored! (>AFTER< speechAI) - ## {response_speechhelper} ##") # enable this line if further debugging info is required
                 continue
         
+        response_speechhelper = response_speechhelper.replace("Carver", "cable")
         response_speechhelper = response_speechhelper.replace("Carlos", "GLaDOS")
         response_speechhelper = response_speechhelper.replace("Clarus" , "GLaDOS")
         response_speechhelper = response_speechhelper.replace("Pia", "GLaDOS")
