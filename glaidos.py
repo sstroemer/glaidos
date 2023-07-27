@@ -152,7 +152,7 @@ def run_glaidos():
         {
             "role": "user",
             "content": """
-            You are a text processor. Take the user input that was created by an automatic voice-to-text service and correct obvious mistakes, leading to the most likely text that the user actually said.
+            You are a text processor, preparing text for a GLaDOS chatbot. Take the user input that was created by an automatic voice-to-text service and correct obvious mistakes, leading to the most likely text that the user actually said.
             Do not change the meaning of the sentence. Only look at spelling mistakes and grammar errors. If there are no obvious errors within the text, reply with the unchanged text. Do not answer questions just reply with corrected text.
             Mistakes could be:
             "Bottle Gun" or "Forderung dran" or "portal card" which should be "Portal Gun"
@@ -394,7 +394,7 @@ def run_glaidos():
             {
                 "role": "user",
                 "content": """
-                You are a text processor. Take the user input that was created by an automatic voice-to-text service and correct obvious mistakes, leading to the most likely text that the user actually said.
+                You are a text processor, preparing text for a GLaDOS chatbot. Take the user input that was created by an automatic voice-to-text service and correct obvious mistakes, leading to the most likely text that the user actually said.
                 Do not change the meaning of the sentence. Only look at spelling mistakes and grammar errors. If there are no obvious errors within the text, reply with the unchanged text. Do not answer questions just reply with corrected text.
                 Mistakes could be:
                 "Bottle Gun" or "Forderung dran" or "portal card" which should be "Portal Gun"
