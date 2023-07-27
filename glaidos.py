@@ -126,6 +126,11 @@ def run_glaidos():
     simulate_server_overload = False  # Set this to "True" to simulate server overload. "False" for normal operation.
     simulate_server_timeout = False # Set this to "True" to simulate server timeout situations. "False" for normal operation.
     
+    translator_timeout = 5
+    speechhelper_timeout = 5
+    glados_timeout = 30
+    
+    
     # Prepare messages, first: "priming" the system role.
     messages_glados = [
         {
@@ -262,7 +267,7 @@ def run_glaidos():
                 if simulate_server_timeout and retry_count == 0:
                     raise openai.error.Timeout("Simulated server Timeout")
                 completion_translator = openai.ChatCompletion.create(
-                    model="gpt-3.5-turbo", temperature=0.3, messages=messages_translator, request_timeout = 5
+                    model="gpt-3.5-turbo", temperature=0.3, messages=messages_translator, request_timeout = translator_timeout
                 )
                 response_translator = completion_translator.choices[0].message.content
                 break
@@ -315,7 +320,7 @@ def run_glaidos():
                 if simulate_server_timeout and retry_count == 0:
                     raise openai.error.Timeout("Simulated server Timeout")
                 completion_speechhelper = openai.ChatCompletion.create(
-                    model="gpt-3.5-turbo", temperature=0.3, messages=messages_speechhelper, request_timeout = 5
+                    model="gpt-3.5-turbo", temperature=0.3, messages=messages_speechhelper, request_timeout = speechhelper_timeout
                 )
                 response_speechhelper = completion_speechhelper.choices[0].message.content
                 break
@@ -411,7 +416,7 @@ def run_glaidos():
                     if simulate_server_timeout and retry_count == 0:
                         raise openai.error.Timeout("Simulated server Timeout")
                     completion = openai.ChatCompletion.create(
-                        model="gpt-3.5-turbo-16k", temperature=0.8, messages=messages_glados, request_timeout = 5
+                        model="gpt-3.5-turbo-16k", temperature=0.8, messages=messages_glados, request_timeout = glados_timeout
                     )
                     response = completion.choices[0].message.content
                     response = response.replace("GLaDOS", "glados")
