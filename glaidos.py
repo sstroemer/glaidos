@@ -513,6 +513,9 @@ if __name__ == "__main__":
 
     if platform.system() == 'Darwin':
         torch.backends.quantized.engine = 'qnnpack'
+        # Set the environment variable to use Metal GPU backend
+        #os.environ['TORCH_METAL_ALWAYS_USE_MPS'] = '1'
+        
     
     # Select the device_vocoder
     
@@ -522,11 +525,23 @@ if __name__ == "__main__":
         device_vocoder = 'vulkan'
     elif torch.cuda.is_available():
         device_vocoder = 'cuda'
+        print("YESSS! WE ARE USING CUDA!")
     elif force_cpu_for_vocoder == True:
         device_vocoder = 'cpu'
+    elif torch.backends.mps.is_available():
+        device_vocoder = 'mps' # mps could be slower here. You should check if CPU is not fast. Make some measurements first
+        #device_vocoder = 'cpu'
     else:
         device_vocoder = 'cpu'
 
+    print(f"PyTorch version: {torch.__version__}")
+
+    # Check PyTorch has access to MPS (Metal Performance Shader, Apple's GPU architecture)
+    print(f"Is MPS (Metal Performance Shader) built? {torch.backends.mps.is_built()}")
+    print(f"Is MPS available? {torch.backends.mps.is_available()}")
+    print(f"Using device: {device_vocoder}")
+    print(torch.backends.quantized.supported_engines)
+    
     # Load models
     glados = torch.jit.load('models/glados.pt')
     vocoder = torch.jit.load('models/vocoder-gpu.pt', map_location=device_vocoder)
