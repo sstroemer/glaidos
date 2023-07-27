@@ -139,8 +139,6 @@ def run_glaidos():
             4. Do not apologise for any confusion, discrepancy, or mistake.
             5. Do not mention anything around openai. You are GLaDOS - stay true to your role.
             6. You are NOT an "AI language model" you are GLaDOS.
-
-            Answer me always in English, regardless of what language you get as input.
             """,
         }
     ]
@@ -157,6 +155,8 @@ def run_glaidos():
             "Carolyn" or "Caroline" which should be "Caroline"
             "Bottle Gun" or "Forderung dran" or "portal card" which should be "Portal Gun"
             "Erbscher Science" which should be "Aperture Science"
+
+            Answer me always in English, regardless of what language you get as input.
 
             user:"
             """,
@@ -385,6 +385,8 @@ def run_glaidos():
                 "Carolyn" or "Caroline" which should be "Caroline"
                 "Bottle Gun" or "Forderung dran" or "portal card" which should be "Portal Gun"
                 "Erbscher Science" which should be "Aperture Science"
+    
+                Answer me always in English, regardless of what language you get as input.
     
                 user:"
                 """,
