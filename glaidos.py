@@ -288,6 +288,12 @@ def run_glaidos():
         response_translator = response_translator.replace("Pia", "GLaDOS")
         response_translator = response_translator.replace("Clarus", "GLaDOS")
         response_translator = response_translator.replace("Kjaros", "GLaDOS")
+        response_translator = response_translator.replace("Klaus", "GLaDOS")
+        response_translator = response_translator.replace("Cleanders" , "GLaDOS")
+        response_translator = response_translator.replace("Gladus" , "GLaDOS")
+        response_translator = response_translator.replace("Carolyn" , "Caroline")
+        response_translator = response_translator.replace("Sankt Klaus" , "GLaDOS")
+        response_translator = response_translator.replace("Santa Claus" , "GLaDOS")
     
         # Add the user command.
         messages_speechhelper.append({"role": "user", "content": (response_translator+"\"")})
@@ -361,9 +367,17 @@ def run_glaidos():
                 print(f"DEBUG: Previous Input was ignored! (>AFTER< speechAI) - ## {response_speechhelper} ##") # enable this line if further debugging info is required
                 continue
         
+        response_speechhelper = response_speechhelper.replace("Carlos", "GLaDOS")
+        response_speechhelper = response_speechhelper.replace("Clarus" , "GLaDOS")
+        response_speechhelper = response_speechhelper.replace("Pia", "GLaDOS")
+        response_speechhelper = response_speechhelper.replace("Clarus", "GLaDOS")
+        response_speechhelper = response_speechhelper.replace("Kjaros", "GLaDOS")
         response_speechhelper = response_speechhelper.replace("Klaus", "GLaDOS")
         response_speechhelper = response_speechhelper.replace("Cleanders" , "GLaDOS")
-        response_speechhelper = response_speechhelper.replace("Clarus" , "GLaDOS")
+        response_speechhelper = response_speechhelper.replace("Gladus" , "GLaDOS")
+        response_speechhelper = response_speechhelper.replace("Carolyn" , "Caroline")
+        response_speechhelper = response_speechhelper.replace("Sankt Klaus" , "GLaDOS")
+        response_speechhelper = response_speechhelper.replace("Santa Claus" , "GLaDOS")
         
         print(f"INPUT-GLADOS: #>{response_speechhelper}<#")
         
