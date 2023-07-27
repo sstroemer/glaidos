@@ -390,7 +390,7 @@ def run_glaidos():
             response = "Hah! How cute human! You cannot offend me. Remember. I am glados. As an AI I don't have feelings... but I guess I should punish you never than less. You monster."
             donotremember = True
         elif(("sorry, I can only translate text" in response_speechhelper) or ("as I am a text processor" in response_speechhelper) or ("I am a text processor" in response_speechhelper) or ("can only process text" in response_speechhelper) or ("provide translations" in response_speechhelper)
-            or ("ASCII art" in response_speechhelper)):
+            or ("ASCII art" in response_speechhelper) or ("me to transcribe" in response_speechhelper) or ("you haven't provided any text" in response_speechhelper)):
             response = "I am sorry but I am afraid I cannot do that. You shouldn't have time for such nonsense. Go back to the test chamber and complete those tests for once. Not that I have any hopes for you.... hahaha"
             donotremember = True
         else:
