@@ -130,6 +130,40 @@ def run_glaidos():
     speechhelper_timeout = 5
     glados_timeout = 30
     
+    # Prepare messages, first: "priming" the system role.
+    messages_translator = [
+        {
+            "role": "user",
+            "content": """
+            You are a text translator your purpose is to translate text to english. Translate the text which starts after "user:" to english. Only reply with the translated text. Do not change the meaning of the sentence. Only translate. 
+            If the given text is already in english do not change the text.
+            Fix common mistakes with the phrase "Portal Gun".
+            Common mistakes are:
+            "Bottle Gun" or "Forderung dran" or "portal card" or "Portenkarten" or "Porten gang" or "Porcupine" which should be "Portal Gun"
+            
+            user:"
+            """,
+        }
+    ]
+    
+    
+    # Prepare messages, first: "priming" the system role.
+    messages_speechhelper = [
+        {
+            "role": "user",
+            "content": """
+            You are a text processor. Take the user input that was created by an automatic voice-to-text service and correct obvious mistakes, leading to the most likely text that the user actually said.
+            Do not change the meaning of the sentence. Only look at spelling mistakes and grammar errors. If there are no obvious errors within the text, reply with the unchanged text. Do not answer questions just reply with corrected text.
+            Mistakes could be:
+            "Bottle Gun" or "Forderung dran" or "portal card" which should be "Portal Gun"
+            "Erbscher Science" which should be "Aperture Science"
+
+            Answer me always in English, regardless of what language you get as input.
+
+            user:"
+            """,
+        }
+    ]
     
     # Prepare messages, first: "priming" the system role.
     messages_glados = [
@@ -147,43 +181,6 @@ def run_glaidos():
             """,
         }
     ]
-    
-    # Prepare messages, first: "priming" the system role.
-    messages_speechhelper = [
-        {
-            "role": "user",
-            "content": """
-            You are a text processor. Take the user input that was created by an automatic voice-to-text service and correct obvious mistakes, leading to the most likely text that the user actually said.
-            Do not change the meaning of the sentence. Only look at spelling mistakes and grammar errors. If there are no obvious errors within the text, reply with the unchanged text. Do not answer questions just reply with corrected text.
-            Mistakes could be:
-            "Kratus" or "Carlos" or "Sankt Klaus" or "Santa Claus" which should be "GLaDOS"
-            "Carolyn" or "Caroline" which should be "Caroline"
-            "Bottle Gun" or "Forderung dran" or "portal card" which should be "Portal Gun"
-            "Erbscher Science" which should be "Aperture Science"
-
-            Answer me always in English, regardless of what language you get as input.
-
-            user:"
-            """,
-        }
-    ]
-    
-    # Prepare messages, first: "priming" the system role.
-    messages_translator = [
-        {
-            "role": "user",
-            "content": """
-            You are a text translator your purpose is to translate text to english. Translate the text which starts after "user:" to english. Only reply with the translated text. Do not change the meaning of the sentence. Only translate. 
-            If the given text is already in english do not change the text.
-            Fix common mistakes with the phrase "Portal Gun".
-            Common mistakes are:
-            "Bottle Gun" or "Forderung dran" or "portal card" or "Portenkarten" or "Porten gang" or "Porcupine" which should be "Portal Gun"
-            
-            user:"
-            """,
-        }
-    ]
-    
     
     # Load environment variables
     load_environment()
@@ -386,8 +383,6 @@ def run_glaidos():
                 You are a text processor. Take the user input that was created by an automatic voice-to-text service and correct obvious mistakes, leading to the most likely text that the user actually said.
                 Do not change the meaning of the sentence. Only look at spelling mistakes and grammar errors. If there are no obvious errors within the text, reply with the unchanged text. Do not answer questions just reply with corrected text.
                 Mistakes could be:
-                "Kratus" or "Carlos" or "Sankt Klaus" or "Santa Claus" which should be "GLaDOS"
-                "Carolyn" or "Caroline" which should be "Caroline"
                 "Bottle Gun" or "Forderung dran" or "portal card" which should be "Portal Gun"
                 "Erbscher Science" which should be "Aperture Science"
     
