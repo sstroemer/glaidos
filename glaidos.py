@@ -107,20 +107,20 @@ substring_filters = ["thank you so much for watching", "thank you for watching",
                     "la la", "i hope you enjoyed it", "couple of videos", "hitler"]
 
 replacements_dictionary = {
-    "Carver"     : "cable",
-    "Carolyn"    : "Caroline",
-    "Kladus"     : "GLaDOS"
-    "Karlos"     : "GLaDOS",
-    "Klarus"     : "GLaDOS",
-    "Carlos"     : "GLaDOS",
-    "Clarus"     : "GLaDOS",
-    "Pia"        : "GLaDOS",
-    "Kjaros"     : "GLaDOS",
-    "Klaus"      : "GLaDOS",
-    "Cleanders"  : "GLaDOS",
-    "Gladus"     : "GLaDOS",
-    "Sankt Klaus": "GLaDOS",
-    "Santa Claus": "GLaDOS"
+    "Carver"      : "cable",
+    "Carolyn"     : "Caroline",
+    "Kladus"      : "GLaDOS",
+    "Karlos"      : "GLaDOS",
+    "Klarus"      : "GLaDOS",
+    "Carlos"      : "GLaDOS",
+    "Clarus"      : "GLaDOS",
+    "Pia"         : "GLaDOS",
+    "Kjaros"      : "GLaDOS",
+    "Klaus"       : "GLaDOS",
+    "Cleanders"   : "GLaDOS",
+    "Gladus"      : "GLaDOS",
+    "Sankt Klaus" : "GLaDOS",
+    "Santa Claus" : "GLaDOS"
 }
 
 offensive_phrases = ["i apologize, but i cannot translate offensive or disrespectful", "i'm sorry, i can help", 
