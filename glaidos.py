@@ -120,6 +120,7 @@ replacements_dictionary = {
     "Cleanders"   : "GLaDOS",
     "Gladus"      : "GLaDOS",
     "Gliados"     : "GLaDOS",
+    "Claudus"     : "GLaDOS",
     "Sankt Klaus" : "GLaDOS",
     "Santa Claus" : "GLaDOS"
 }
