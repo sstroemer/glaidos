@@ -42,6 +42,7 @@ mic_phrase_timelimit = 13
 whisper_local_model_type = "medium"
 whisper_API_model_type = "whisper-1"
 use_local_whisper = False
+force_cpu_for_vocoder = False
 
 translator_role_config = [
     {
@@ -495,6 +496,9 @@ def remove_wav_files(folder_path):
             
             
 if __name__ == "__main__":
+    
+    print(f"PyTorch version: {torch.__version__}")
+    
     load_dotenv()
     
     @contextlib.contextmanager
@@ -510,41 +514,40 @@ if __name__ == "__main__":
             finally:
                 os.dup2(orig_stdout_fno, 1)
                 os.dup2(orig_stderr_fno, 2)
-                
+
     if platform.system() == 'Darwin':
         torch.backends.quantized.engine = 'qnnpack'
+        # Check PyTorch has access to MPS (Metal Performance Shader, Apple's GPU architecture)
+        print(f"Is MPS (Metal Performance Shader) built? {torch.backends.mps.is_built()}")
+        print(f"Is MPS available? {torch.backends.mps.is_available()}")
+        if torch.backends.mps.is_available():
+            device_vocoder = 'mps' # mps could be slower here. You should check if CPU is not fast. Make some measurements first
+            #device_vocoder = 'cpu'
+        else: device_vocoder = 'cpu'
         # Set the environment variable to use Metal GPU backend
         #os.environ['TORCH_METAL_ALWAYS_USE_MPS'] = '1' # not sure if this is really required - therefore dissabled at the moment
-        
-    # Select the device_vocoder
-    force_cpu_for_vocoder = False;
-    
-    if torch.is_vulkan_available():
-        device_vocoder = 'vulkan'
-    elif torch.cuda.is_available():
-        device_vocoder = 'cuda'
-        print("YESSS! WE ARE USING CUDA!")
-    elif force_cpu_for_vocoder == True:
-        device_vocoder = 'cpu'
-    elif torch.backends.mps.is_available():
-        device_vocoder = 'mps' # mps could be slower here. You should check if CPU is not fast. Make some measurements first
-        #device_vocoder = 'cpu'
     else:
-        device_vocoder = 'cpu'
-        
-    print(f"PyTorch version: {torch.__version__}")
+        if torch.is_vulkan_available():
+            device_vocoder = 'vulkan'
+        elif torch.cuda.is_available():
+            device_vocoder = 'cuda'
+        else:
+            device_vocoder = 'cpu'
     
-    # Check PyTorch has access to MPS (Metal Performance Shader, Apple's GPU architecture)
-    print(f"Is MPS (Metal Performance Shader) built? {torch.backends.mps.is_built()}")
-    print(f"Is MPS available? {torch.backends.mps.is_available()}")
+    if force_cpu_for_vocoder == True:
+        device_vocoder = 'cpu'
+        printf("WARNING - forcing CPU as device for vocoder!")
+
     print(f"Using device: {device_vocoder}")
-    print(torch.backends.quantized.supported_engines)
+    print(f"Supporting the following torch backend quantized engines: {torch.backends.quantized.supported_engines}")
+    print(f"Using torch backend quantized engine: {torch.backends.quantized.engine}")
     
     # Load models
     glados = torch.jit.load('models/glados.pt')
     vocoder = torch.jit.load('models/vocoder-gpu.pt', map_location=device_vocoder)
     
     # Select the microphone
+    print("\nPlease select a microphone as INPUT for GLAIDOS")
     selected_microphone = select_microphone()
     if selected_microphone is None:
         sys.exit("No Mic found!")
