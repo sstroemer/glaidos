@@ -159,16 +159,16 @@ def select_microphone():
     return selected_index
 
 def load_environment():
-	try:
-		with open(".env", 'r') as file:
-			line = file.readline().strip()
-			if not line:
-				raise FileNotFoundError()
+    try:
+        with open(".env", 'r') as file:
+            line = file.readline().strip()
+            if not line:
+                raise FileNotFoundError()
             line.replace("OPENAI_API_KEY=\"", "")
             line.replace("\"" "")
             openai.api_key = line
-	except FileNotFoundError as e:
-		print("\nWarning!! '.env' file not found. If you added a path variable in your system - I will use this instead. If not.. it will fail!!\n", e)
+    except FileNotFoundError as e:
+        print("\nWarning!! '.env' file not found. If you added a path variable in your system - I will use this instead. If not.. it will fail!!\n", e)
         
 def play_wav_files(files):
     while(first_sentence_playing == True):
