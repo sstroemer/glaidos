@@ -119,6 +119,7 @@ replacements_dictionary = {
     "Klaus"       : "GLaDOS",
     "Cleanders"   : "GLaDOS",
     "Gladus"      : "GLaDOS",
+    "Gliados"     : "GLaDOS",
     "Sankt Klaus" : "GLaDOS",
     "Santa Claus" : "GLaDOS"
 }
@@ -164,8 +165,8 @@ def load_environment():
             line = file.readline().strip()
             if not line:
                 raise FileNotFoundError()
-            line.replace("OPENAI_API_KEY=\"", "")
-            line.replace("\"", "")
+            line = line.replace("OPENAI_API_KEY=\"", "")
+            line = line.replace("\"", "")
             openai.api_key = line
     except FileNotFoundError as e:
         print("\nWarning!! '.env' file not found. If you added a path variable in your system - I will use this instead. If not.. it will fail!!\n", e)
