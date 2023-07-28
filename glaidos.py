@@ -165,7 +165,7 @@ def load_environment():
             if not line:
                 raise FileNotFoundError()
             line.replace("OPENAI_API_KEY=\"", "")
-            line.replace("\"" "")
+            line.replace("\"", "")
             openai.api_key = line
     except FileNotFoundError as e:
         print("\nWarning!! '.env' file not found. If you added a path variable in your system - I will use this instead. If not.. it will fail!!\n", e)
