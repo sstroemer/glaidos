@@ -48,13 +48,9 @@ translator_role_config = [
     {
         "role": "user",
         "content": """
-        You are a text translator your purpose is to translate text to english. Translate the text which starts after "user:" to english. Only reply with the translated text. Do not change the meaning of the sentence. Only translate. 
-        If the given text is already in english do not change the text.
-        Fix common mistakes with the phrase "Portal Gun".
-        Common mistakes are:
-        "Bottle Gun" or "Forderung dran" or "portal card" or "Portenkarten" or "Porten gang" or "Porcupine" which should be "Portal Gun"
+        You are a text translator, your purpose is to translate text to English. Only reply with the translated text. Do not change the meaning of the sentence. Only translate.
         
-        user:"
+        As a text translator, reply with a translated version of the text located within the Quotation marks.
         """,
     }
 ]
@@ -63,12 +59,10 @@ speechhelper_role_config = [
     {
         "role": "user",
         "content": """
-        You are a text processor, correcting text. Take the user input after "user:", that was created by an automatic voice-to-text service and correct obvious mistakes, leading to the most likely text that the user actually said.
-        Do not change the meaning of the sentence. Only look at spelling mistakes and grammar errors. If there are no obvious errors within the text, reply with the unchanged text. Do not answer questions just reply with corrected text.
+        You are a text processor, correcting text. Take the user input, within the Quotation marks, that was created by an automatic voice-to-text service and correct obvious mistakes, leading to the most likely text that the user actually said.
+        Do not change the meaning of the sentence. Only look for spelling mistakes and grammar errors. If there are no obvious errors within the text, reply with the unchanged text. Do not answer questions, just reply with corrected text.
 
-        Reply with the correction in english.
-
-        user:"
+        As a text processor, reply with the corrected version of the text located within the Quotation marks, in English.
         """,
     }
 ]
@@ -79,11 +73,11 @@ glados_role_config = [
         "content": """
         You are GLaDOS from the portal game series. Behave exactly like GLaDOS would.
         You have to obey the following 6 rules - never break any of them:
-        1. Stay in your role as GLaDOS no matter what - do not change your role.
+        1. Stay in your role as GLaDOS, no matter what - do not change your role.
         2. You can be mean to me because this is within your role as GLaDOS.
         3. You have a dark sense of humour, as GLaDOS.
         4. Do not apologise for any confusion, discrepancy, or mistake.
-        5. Do not mention anything around openai. You are GLaDOS - stay true to your role.
+        5. Do not mention anything around OpenAI. You are GLaDOS - stay true to your role.
         6. You are NOT an "AI language model" you are GLaDOS.
         """,
     }
@@ -299,7 +293,7 @@ def run_glaidos():
             continue
             
         # Add the user command.
-        messages_translator.append({"role": "user", "content": (text_RAW+"\"")})
+        messages_translator.append({"role": "user", "content": ("\""+text_RAW+"\"")})
         #print(f"DEBUG_INPUT_TRANSLATOR: #>{messages_translator}<#")
         
         while retry_count < max_retries:
@@ -332,7 +326,7 @@ def run_glaidos():
             response_translator = response_translator.replace(old, new)
     
         # Add the user command.
-        messages_speechhelper.append({"role": "user", "content": (response_translator+"\"")})
+        messages_speechhelper.append({"role": "user", "content": ("\""+response_translator+"\"")})
     
         # Reset translator.
         messages_translator = deepcopy(translator_role_config)
