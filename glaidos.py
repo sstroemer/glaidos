@@ -12,6 +12,8 @@ from copy import deepcopy
 import openai
 import openai.error
 import simpleaudio as sa
+import sounddevice as sd
+import soundfile as sf
 import speech_recognition as sr
 import torch
 from dotenv import load_dotenv
@@ -50,7 +52,7 @@ translator_role_config = [
         "content": """
         You are a text translator, your purpose is to translate text to English. Only reply with the translated text. Do not change the meaning of the sentence. Only translate.
         
-        As a text translator, reply with a translated version of the text located within the Quotation marks.
+        As an English text translator, reply with a translated version of the text located within the Quotation marks.
         """,
     }
 ]
@@ -114,7 +116,8 @@ replacements_dictionary = {
     "Gliados"     : "GLaDOS",
     "Claudus"     : "GLaDOS",
     "Sankt Klaus" : "GLaDOS",
-    "Santa Claus" : "GLaDOS"
+    "Santa Claus" : "GLaDOS",
+    "Gliadus"     : "GLaDOS"
 }
 
 offensive_phrases = ["i apologize, but i cannot translate offensive or disrespectful", "i'm sorry, i can help", 
@@ -164,7 +167,7 @@ def load_environment():
     except FileNotFoundError as e:
         print("\nWarning!! '.env' file not found. If you added a path variable in your system - I will use this instead. If not.. it will fail!!\n", e)
         
-def play_wav_files(files):
+def play_wav_files_deprecated(files):
     while(first_sentence_playing == True):
         time.sleep(0.1)
     files = sorted(files, key=lambda x: int(x[:-4]))  # Sort files based on sentence IDs
@@ -178,6 +181,31 @@ def play_wav_files(files):
             while not os.path.exists(next_file):
                 time.sleep(0.2)
                 
+def select_output_device():
+    # List all audio output devices
+    devices = sd.query_devices()
+    for i, device in enumerate(devices):
+        if device['max_output_channels'] > 0:
+            print(f"Output Device id {i} - {device['name']}")
+            
+    # Ask user to select device
+    device_id = int(input("Enter the id of the output device: "))
+    return device_id
+
+def play_wav_files(files, device_id):
+    while(first_sentence_playing == True):
+        time.sleep(0.1)
+    files = sorted(files, key=lambda x: int(x[:-4]))  # Sort files based on sentence IDs
+    for i, file in enumerate(files):
+        data, samplerate = sf.read(file)
+        sd.play(data, samplerate, device=device_id)
+        sd.wait()
+        
+        if i < len(files) - 1:
+            next_file = files[i + 1]
+            while not os.path.exists(next_file):
+                time.sleep(0.2)
+
 def generate_and_save_audio(sentence, output_file):
     # Tokenize, clean, and phonemize input text
     x = prepare_text(sentence).to('cpu')
@@ -461,7 +489,7 @@ def run_glaidos():
                     
                     # Play the audio file if it has not been played before
                     if next_task[1] not in completed_sentences:
-                        play_wav_files([output_file])
+                        play_wav_files([output_file],output_device_id)
                         completed_sentences.add(next_task[1])
                         
                     # Remove the completed task from the future tasks list
@@ -537,6 +565,9 @@ if __name__ == "__main__":
     glados = torch.jit.load('models/glados.pt')
     vocoder = torch.jit.load('models/vocoder-gpu.pt', map_location=device_vocoder)
     
+    #select the output device
+    output_device_id = select_output_device()
+
     # Select the microphone
     print("\nPlease select a microphone as INPUT for GLAIDOS")
     selected_microphone = select_microphone()
@@ -544,4 +575,5 @@ if __name__ == "__main__":
         sys.exit("No Mic found!")
         
     run_glaidos()
+    
     
