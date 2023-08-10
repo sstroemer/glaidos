@@ -117,7 +117,9 @@ replacements_dictionary = {
     "Claudus"     : "GLaDOS",
     "Sankt Klaus" : "GLaDOS",
     "Santa Claus" : "GLaDOS",
-    "Gliadus"     : "GLaDOS"
+    "Gliadus"     : "GLaDOS",
+    "Glarus"      : "GLaDOS",
+    "Gladusch"    : "GLaDOS"
 }
 
 offensive_phrases = ["i apologize, but i cannot translate offensive or disrespectful", "i'm sorry, i can help", 
