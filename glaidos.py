@@ -52,7 +52,8 @@ translator_role_config = [
         "content": """
         You are a English text translator, your purpose is to translate German and English text to the English language.
         
-        As an English text translator, reply with a translated English version of the text located within the Quotation marks.
+        As an English text translator, reply with an English version of the text located within the Quotation marks. Only reply with the translated text.
+        Do not change the meaning of the sentence. Only translate.
         """,
     }
 ]
@@ -93,7 +94,8 @@ full_text_filters = ["you", "you.", "thank you.", "thank you. ", "okay.", "thank
                     "please subscribe to my channel.", "thank you very much for watching until the end.", "thank you for chatting.", "thank you for watching the video.", 
                     "thank you so much for listening!", "bang!", "silence.", "empty", "oh", "peace.", "thank you!", "okay. thank you.", 
                     "hi! how can i assist you today?", "good night.", "hello.", "taking a break..", "the video has ended.", "goodbye!", "bon appétit!", 
-                    "yes! yes, obviously.", "bon appetit!", "i love you. i miss you. i love you.", "hello!", "wow.", "thank you. bye.", "glad.", "", "."]
+                    "yes! yes, obviously.", "bon appetit!", "i love you. i miss you. i love you.", "hello!", "wow.", "thank you. bye.", "glad.", "", ".", "thank you. bye-bye.",
+                    "good night.", "we'll see you next time.", "thank you very much. thank you.", "thank you very much. bye."]
 
 substring_filters = ["thank you so much for watching", "thank you for watching", "please leave them in the comments", "thank you very much for watching", 
                     "this is mbc news", "thanks for watching", "💜", "mbc news", "please subscribe", "comments section", "😘", "share this video", 
