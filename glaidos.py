@@ -124,7 +124,8 @@ replacements_dictionary = {
     "Gladusch"    : "GLaDOS",
     "Glanus"      : "GLaDOS",
     "Janosch"     : "GLaDOS",
-    "Glörnus"     : "GLaDOS"
+    "Glörnus"     : "GLaDOS",
+    "Chiaros"     : "GLaDOS"
 }
 
 offensive_phrases = ["i apologize, but i cannot translate offensive or disrespectful", "i'm sorry, i can help", 
