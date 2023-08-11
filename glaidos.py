@@ -50,9 +50,9 @@ translator_role_config = [
     {
         "role": "user",
         "content": """
-        You are a text translator, your purpose is to translate text to English. Only reply with the translated text. Do not change the meaning of the sentence. Only translate.
+        You are a English text translator, your purpose is to translate German and English text to the English language.
         
-        As an English text translator, reply with a translated version of the text located within the Quotation marks.
+        As an English text translator, reply with a translated English version of the text located within the Quotation marks.
         """,
     }
 ]
