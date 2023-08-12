@@ -44,7 +44,7 @@ mic_phrase_timelimit = 13
 whisper_local_model_type = "medium"
 whisper_API_model_type = "whisper-1"
 use_local_whisper = False
-force_cpu_for_vocoder = False
+force_cpu_for_vocoder = True
 
 translator_role_config = [
     {
@@ -563,7 +563,7 @@ if __name__ == "__main__":
     
     if force_cpu_for_vocoder == True:
         device_vocoder = 'cpu'
-        printf("WARNING - forcing CPU as device for vocoder!")
+        print("WARNING - forcing CPU as device for vocoder!")
 
     print(f"Using device: {device_vocoder}")
     print(f"Supporting the following torch backend quantized engines: {torch.backends.quantized.supported_engines}")
