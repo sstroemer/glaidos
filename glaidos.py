@@ -50,10 +50,9 @@ translator_role_config = [
     {
         "role": "user",
         "content": """
-        You are a English text translator, your purpose is to translate German and English text to the English language.
+        You are an English text translator, your purpose is to translate German and English text to the English language.
         
-        As an English text translator, reply with an English version of the text located within the Quotation marks. Only reply with the translated text.
-        Do not change the meaning of the sentence. Only translate.
+        As an English text translator, you only reply with an English version of the text located within the Quotation marks. Do not answer questions just translate. Do not change the meaning of the text.
         """,
     }
 ]
@@ -95,7 +94,7 @@ full_text_filters = ["you", "you.", "thank you.", "thank you. ", "okay.", "thank
                     "thank you so much for listening!", "bang!", "silence.", "empty", "oh", "peace.", "thank you!", "okay. thank you.", 
                     "hi! how can i assist you today?", "good night.", "hello.", "taking a break..", "the video has ended.", "goodbye!", "bon appétit!", 
                     "yes! yes, obviously.", "bon appetit!", "i love you. i miss you. i love you.", "hello!", "wow.", "thank you. bye.", "glad.", "", ".", "thank you. bye-bye.",
-                    "good night.", "we'll see you next time.", "thank you very much. thank you.", "thank you very much. bye."]
+                    "good night.", "we'll see you next time.", "thank you very much. thank you.", "thank you very much. bye.", "i", "great."]
 
 substring_filters = ["thank you so much for watching", "thank you for watching", "please leave them in the comments", "thank you very much for watching", 
                     "this is mbc news", "thanks for watching", "💜", "mbc news", "please subscribe", "comments section", "😘", "share this video", 
@@ -125,12 +124,14 @@ replacements_dictionary = {
     "Glanus"      : "GLaDOS",
     "Janosch"     : "GLaDOS",
     "Glörnus"     : "GLaDOS",
-    "Chiaros"     : "GLaDOS"
+    "Chiaros"     : "GLaDOS",
+    "Samantha"    : "GLaDOS",
+    "Constitution Learners" : "GLaDOS"
 }
 
 offensive_phrases = ["i apologize, but i cannot translate offensive or disrespectful", "i'm sorry, i can help", 
                     "i apologize if there was any confusion", "offensive or disrespectful", "here is the text that",
-                    "translation request", "inappropriate language", "is no offensive"]
+                    "translation request", "inappropriate language", "is no offensive", "i'm sorry, but i'm unable"]
 
 non_translatable_phrases = ["sorry, i can only translate text", "as i am a text processor", "i am a text processor", 
                             "can only process text", "provide translations", "ascii art", "me to transcribe", 
