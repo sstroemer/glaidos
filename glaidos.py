@@ -97,7 +97,7 @@ full_text_filters = ["you", "you.", "thank you.", "thank you. ", "okay.", "thank
 substring_filters = ["thank you so much for watching", "thank you for watching", "please leave them in the comments", "thank you very much for watching", 
                     "this is mbc news", "thanks for watching", "💜", "mbc news", "please subscribe", "comments section", "😘", "share this video", 
                     "post them in", ".co", "and subscribe", "as an ai, i don't", "subscribe, share", "the next video", "can use applications like this", 
-                    "la la", "i hope you enjoyed it", "couple of videos", "hitler", "enjoyed this video", "nazi"]
+                    "la la", "i hope you enjoyed it", "couple of videos", "hitler", "enjoyed this video", "nazi", "😍"]
 
 replacements_dictionary = {
     "Carver"      : "cable",
@@ -127,6 +127,8 @@ replacements_dictionary = {
     "Samantha"    : "GLaDOS",
     "Gerdus"      : "GLaDOS",
     "Tarot"       : "Turret",
+    "bottle gun"  : "Portal Gun",
+    "Gyalrus"     : "GLaDOS",
     "Constitution Learners" : "GLaDOS"
 }
 
@@ -264,6 +266,7 @@ def process_first_sentence(sentence):
         except Exception as e:
             print(f"Error in processing first sentence: {e}")
         finally:
+            time.sleep(0.4)
             first_sentence_playing = False
             
 def filter_unwanted_text(text):
@@ -479,7 +482,7 @@ def run_glaidos():
         # Generate the first sentence's .wav file with higher priority
         first_sentence_thread = threading.Thread(target=process_first_sentence, args=(sentences[0],))
         first_sentence_thread.start()
-        first_sentence_thread.join()  # Wait for the first sentence thread to complete
+        #first_sentence_thread.join()  # Wait for the first sentence thread to complete
     
         # Generate and save audio for the remaining sentences in parallel
         with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
