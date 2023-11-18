@@ -61,10 +61,8 @@ speechhelper_role_config = [
     {
         "role": "user",
         "content": """
-        You are a text processor, correcting text. Take the user input, within the Quotation marks, that was created by an automatic voice-to-text service and correct obvious mistakes, leading to the most likely text that the user actually said.
-        Do not change the meaning of the sentence. Only look for spelling mistakes and grammar errors. If there are no obvious errors within the text, reply with the unchanged text. Do not answer questions, just reply with corrected text.
-
-        As a text processor, reply with the corrected version of the text located within the Quotation marks, in English.
+        You are a text processor and translator, correcting text and translating to english. Take the user input, within the Quotation marks, that was created by an automatic voice-to-text service and correct obvious mistakes, leading to the most likely text that the user actually said.
+        Do not change the meaning of the sentence. Only look for spelling mistakes and grammar errors and translate to english. If there are no obvious errors within the text, reply with the unchanged text in english. Always translate to english.
         """,
     }
 ]
@@ -99,7 +97,7 @@ full_text_filters = ["you", "you.", "thank you.", "thank you. ", "okay.", "thank
 substring_filters = ["thank you so much for watching", "thank you for watching", "please leave them in the comments", "thank you very much for watching", 
                     "this is mbc news", "thanks for watching", "💜", "mbc news", "please subscribe", "comments section", "😘", "share this video", 
                     "post them in", ".co", "and subscribe", "as an ai, i don't", "subscribe, share", "the next video", "can use applications like this", 
-                    "la la", "i hope you enjoyed it", "couple of videos", "hitler"]
+                    "la la", "i hope you enjoyed it", "couple of videos", "hitler", "enjoyed this video", "nazi"]
 
 replacements_dictionary = {
     "Carver"      : "cable",
@@ -112,6 +110,7 @@ replacements_dictionary = {
     "Pia"         : "GLaDOS",
     "Kjaros"      : "GLaDOS",
     "Klaus"       : "GLaDOS",
+    "Klaas"       : "GLaDOS",
     "Cleanders"   : "GLaDOS",
     "Gladus"      : "GLaDOS",
     "Gliados"     : "GLaDOS",
@@ -126,6 +125,8 @@ replacements_dictionary = {
     "Glörnus"     : "GLaDOS",
     "Chiaros"     : "GLaDOS",
     "Samantha"    : "GLaDOS",
+    "Gerdus"      : "GLaDOS",
+    "Tarot"       : "Turret",
     "Constitution Learners" : "GLaDOS"
 }
 
@@ -206,36 +207,39 @@ def play_wav_files(files, device_id):
         time.sleep(0.1)
     files = sorted(files, key=lambda x: int(x[:-4]))  # Sort files based on sentence IDs
     for i, file in enumerate(files):
-        data, samplerate = sf.read(file)
-        sd.play(data, samplerate, device=device_id)
-        sd.wait()
+        try:
+            data, samplerate = sf.read(file)
+            sd.play(data, samplerate, device=device_id)
+            sd.wait()
+        except Exception as e:
+            print(f"Error playing file {file}: {e}")
+            # Optionally play a fallback sound or provide a generic response here
+            continue  # Skip to the next file
         
         if i < len(files) - 1:
             next_file = files[i + 1]
             while not os.path.exists(next_file):
                 time.sleep(0.2)
+                
 
 def generate_and_save_audio(sentence, output_file):
-    # Tokenize, clean, and phonemize input text
-    x = prepare_text(sentence).to('cpu')
-    
-    with torch.no_grad():
-        # Generate generic TTS-output
-        tts_output = glados.generate_jit(x)
+    try:
+        x = prepare_text(sentence).to('cpu')
         
-        # Use HiFiGAN as vocoder to make output sound like GLaDOS
-        mel = tts_output['mel_post'].to(device_vocoder)
-        audio = vocoder(mel)
-        
-        # Normalize audio to fit in WAV file
-        audio = audio.squeeze()
-        audio = audio * 32768.0
-        audio = audio.cpu().numpy().astype('int16')
-        
-        # Write audio file to disk
-        # 22.05 kHz sample rate
-        write(output_file, 22050, audio)
-        
+        with torch.no_grad():
+            tts_output = glados.generate_jit(x)
+            mel = tts_output['mel_post'].to(device_vocoder)
+            audio = vocoder(mel)
+            
+            audio = audio.squeeze()
+            audio = audio * 32768.0
+            audio = audio.cpu().numpy().astype('int16')
+            
+            write(output_file, 22050, audio)
+        print(f"Audio file generated and saved: {output_file}")
+    except Exception as e:
+        print(f"Error in generating audio file {output_file}: {e}")
+
 def process_sentence(sentence, sentence_id):
     # Generate unique output file name for each sentence
     output_file = f'{sentence_id:03d}.wav'
@@ -251,12 +255,14 @@ def process_first_sentence(sentence):
     with lock:
         first_sentence_playing = True
         try:
-            # Generate unique output file name for the first sentence
             output_file = "999.wav"
             generate_and_save_audio(sentence, output_file)
             wave_obj = sa.WaveObject.from_wave_file(output_file)
+            print("Playing first sentence")
             play_obj = wave_obj.play()
             play_obj.wait_done()
+        except Exception as e:
+            print(f"Error in processing first sentence: {e}")
         finally:
             first_sentence_playing = False
             
@@ -330,45 +336,45 @@ def run_glaidos():
             continue
             
         # Add the user command.
-        messages_translator.append({"role": "user", "content": ("\""+text_RAW+"\"")})
+        #messages_translator.append({"role": "user", "content": ("\""+text_RAW+"\"")})
         #print(f"DEBUG_INPUT_TRANSLATOR: #>{messages_translator}<#")
         
-        while retry_count < max_retries:
-            try:
-                if simulate_server_overload and retry_count == 0:
-                    raise openai.error.ServiceUnavailableError("Simulated server overload")
-                if simulate_server_timeout and retry_count == 0:
-                    raise openai.error.Timeout("Simulated server Timeout")
-                completion_translator = openai.ChatCompletion.create(
-                    model="gpt-3.5-turbo", temperature=0.3, messages=messages_translator, request_timeout = translator_timeout
-                )
-                response_translator = completion_translator.choices[0].message.content
-                break
-            except openai.error.ServiceUnavailableError:
-                retry_count += 1
-                print("Server is overloaded. Retrying...")
-                time.sleep(0.1)
-            except openai.error.Timeout as e:
+        #while retry_count < max_retries:
+            #try:
+                #if simulate_server_overload and retry_count == 0:
+                    #raise openai.error.ServiceUnavailableError("Simulated server overload")
+                #if simulate_server_timeout and retry_count == 0:
+                    #raise openai.error.Timeout("Simulated server Timeout")
+                #completion_translator = openai.ChatCompletion.create(
+                    #model="gpt-4-1106-preview", temperature=0.3, messages=messages_translator, request_timeout = translator_timeout
+                #)
+                #response_translator = completion_translator.choices[0].message.content
+                #break
+            #except openai.error.ServiceUnavailableError:
+                #retry_count += 1
+                #print("Server is overloaded. Retrying...")
+                #time.sleep(0.1)
+            #except openai.error.Timeout as e:
                 # Handle the Timeout error (ReadTimeoutError) raised by the OpenAI API
-                retry_count += 1
-                print("Timeout Error:", e)
+                #retry_count += 1
+                #print("Timeout Error:", e)
                 
-        else:
+        #else:
             # Retry limit exceeded, return error response
-            response_translator = ""
+            #response_translator = ""
             
-        retry_count = 0
+        #retry_count = 0
     
-        for old, new in replacements_dictionary.items():
-            response_translator = response_translator.replace(old, new)
+        #for old, new in replacements_dictionary.items():
+            #response_translator = response_translator.replace(old, new)
     
         # Add the user command.
-        messages_speechhelper.append({"role": "user", "content": ("\""+response_translator+"\"")})
-    
+        #messages_speechhelper.append({"role": "user", "content": ("\""+response_translator+"\"")})
+        messages_speechhelper.append({"role": "user", "content": ("\""+text_RAW+"\"")})
         # Reset translator.
         messages_translator = deepcopy(translator_role_config)
         
-        print(f"DEBUG: RESPONSE TRANSLATOR---- #>{response_translator}<#\n")
+        #print(f"DEBUG: RESPONSE TRANSLATOR---- #>{response_translator}<#\n")
         
         #print(f"DEBUG_INPUT_SPEECHHELPER: #>{messages_speechhelper}<#")
     
@@ -379,7 +385,7 @@ def run_glaidos():
                 if simulate_server_timeout and retry_count == 0:
                     raise openai.error.Timeout("Simulated server Timeout")
                 completion_speechhelper = openai.ChatCompletion.create(
-                    model="gpt-3.5-turbo", temperature=0.3, messages=messages_speechhelper, request_timeout = speechhelper_timeout
+                    model="gpt-4-1106-preview", temperature=0.3, messages=messages_speechhelper, request_timeout = speechhelper_timeout
                 )
                 response_speechhelper = completion_speechhelper.choices[0].message.content
                 break
@@ -440,7 +446,7 @@ def run_glaidos():
                     if simulate_server_timeout and retry_count == 0:
                         raise openai.error.Timeout("Simulated server Timeout")
                     completion = openai.ChatCompletion.create(
-                        model="gpt-3.5-turbo-16k", temperature=0.8, messages=messages_glados, request_timeout = glados_timeout
+                        model="gpt-4-1106-preview", temperature=0.8, messages=messages_glados, request_timeout = glados_timeout
                     )
                     response = completion.choices[0].message.content
                     response = response.replace("GLaDOS", "glados")
@@ -473,6 +479,7 @@ def run_glaidos():
         # Generate the first sentence's .wav file with higher priority
         first_sentence_thread = threading.Thread(target=process_first_sentence, args=(sentences[0],))
         first_sentence_thread.start()
+        first_sentence_thread.join()  # Wait for the first sentence thread to complete
     
         # Generate and save audio for the remaining sentences in parallel
         with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
@@ -518,11 +525,11 @@ def run_glaidos():
     
 def remove_wav_files(folder_path):
     for filename in os.listdir(folder_path):
-        if filename.endswith(".wav"):
+        if filename.endswith(".wav") and not filename.startswith('.'):
             file_path = os.path.join(folder_path, filename)
-            os.remove(file_path)
-            
-            
+            if os.path.exists(file_path):  # Check if file exists before attempting to remove
+                os.remove(file_path)
+
 if __name__ == "__main__":
     
     print(f"PyTorch version: {torch.__version__}")
